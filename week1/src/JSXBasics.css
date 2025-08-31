@@ -1,0 +1,7 @@
+/* src/JSXBasics.css */
+.card {
+border: 1px solid #084fdb;
+padding: 12px;
+border-radius: 8px;
+max-width: 520px;
+}
