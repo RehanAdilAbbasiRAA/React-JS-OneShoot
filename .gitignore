@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+
+# build output
+/build
+/dist
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS / system files
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+
+# cache
+.cache/
+.next/
+out/
+coverage/
+
+# lock files (optional, depends if you want them tracked or not)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
