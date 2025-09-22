@@ -27,7 +27,7 @@ function Eventlistner(){
         <label htmlFor="name">Enter Name: </label>
         <input type="text" id="name" value={name} 
         onChange={(e) => setName(e.target.value)} 
-         />
+        />
         <br /><br />
 
         <label htmlFor="pass">Enter Password: </label>

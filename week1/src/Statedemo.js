@@ -39,7 +39,7 @@ function StateDemo(){
                 
                 <input type="text"  value={name} onChange={(e)=>{setName(e.target.value)}}/>
                 <br />
-                <button onClick={handleClick}>Submit</button>
+                <button onClick={handleClick}>Submit </button>
 
                 <b>Your name is {subName}!</b>
             </div>
