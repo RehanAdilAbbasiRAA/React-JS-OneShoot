@@ -3,6 +3,7 @@ import './App.css';
 import AuthPanel from './AuthPanel';
 import LanuageList from './LanuageList';
 import ValidatedForm from './FormValidation';
+import JokeFetch from './JokeFetcher';
 
 function App() {
   return (
@@ -10,6 +11,9 @@ function App() {
       <AuthPanel/>
       < LanuageList/>
       < ValidatedForm/>
+
+      {/* Day 11 */}
+      <JokeFetch/>
     </div>
   );
 }

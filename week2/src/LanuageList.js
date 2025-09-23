@@ -13,7 +13,7 @@ function LanuageList(){
         <h2>
             <ol style={{display: "table", border:"2px solid black" ,margin:"5px"}}>
                 {lanuages.map((lanuage,index)=>(
-                    <li style={{padding:"10px"}} key={index} > {lanuage}</li>
+                    <li style={{padding:"10px"}} key={index} > {lanuage} </li>
                 ))}
             </ol>
             <ol style={{display: "table", border:"2px solid black" ,margin:"5px"}}>

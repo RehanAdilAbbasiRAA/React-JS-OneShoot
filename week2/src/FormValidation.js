@@ -95,7 +95,7 @@ function ValidatedForm(){
                   Other
                 </label>
 
-            <label htmlFor="BIo">Bio :</label>
+            <label htmlFor="BIo">  Bio :</label>
             <textarea name="bio" id="bio" value={form.bio} onChange={(e)=>setValue("bio",e.target.value)}></textarea>
             <label htmlFor="Role">Role :</label>
                     <select name="role" id="role" value={form.role} onChange={(e)=>setValue("role",e.target.value)}>
