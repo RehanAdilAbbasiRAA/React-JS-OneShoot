@@ -5,19 +5,30 @@ import LanuageList from './LanuageList';
 import ValidatedForm from './FormValidation';
 import JokeFetch from './JokeFetcher';
 import PostList from './PostList';
+import ProductCard from './components/ProductCard/ProductCard';
+import ProductCardStyled from './components/ProductCard/ProductCardStyled';
 
 function App() {
   return (
     <div className="App">
+
+      {/* 
       <AuthPanel/>
       < LanuageList/>
       < ValidatedForm/>
 
-      {/* Day 11 */}
       <JokeFetch/>
 
-      {/* Day 12 */}
-      <PostList/>
+        <PostList/>  
+      */}
+
+
+{/* day 13 */}
+
+    <ProductCard title="Protein" price={9000} inStock={true} />
+    <ProductCard title="Cake" price={90} inStock={false} specialOffer={true}/>
+    <ProductCardStyled title="Cookies" price={90} inStock={false} />
+    <ProductCardStyled title="Cake" price={90} inStock={false}  />
     </div>
   );
 }
