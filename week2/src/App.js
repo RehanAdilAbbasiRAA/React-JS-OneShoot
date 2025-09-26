@@ -7,6 +7,8 @@ import JokeFetch from './JokeFetcher';
 import PostList from './PostList';
 import ProductCard from './components/ProductCard/ProductCard';
 import ProductCardStyled from './components/ProductCard/ProductCardStyled';
+import Day14 from './components/ProductCard/Day14';
+import Day141 from './components/ProductCard/Day142nd';
 
 function App() {
   return (
@@ -25,10 +27,16 @@ function App() {
 
 {/* day 13 */}
 
-    <ProductCard title="Protein" price={9000} inStock={true} />
+    {/* <ProductCard title="Protein" price={9000} inStock={true} />
     <ProductCard title="Cake" price={90} inStock={false} specialOffer={true}/>
     <ProductCardStyled title="Cookies" price={90} inStock={false} />
-    <ProductCardStyled title="Cake" price={90} inStock={false}  />
+    <ProductCardStyled title="Cake" price={90} inStock={false}  /> */}
+
+
+    {/* Day 14 */}
+        {/* <Day14/> */}
+        <Day141/>
+
     </div>
   );
 }
