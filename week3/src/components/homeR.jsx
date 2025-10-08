@@ -1,9 +1,14 @@
 import React from 'react'
+import { Outlet,NavLink } from 'react-router-dom'
 
 
 const homeR = () => {
   return (
-    <div> Welcone to Book Store! </div>
+    <>
+      <NavLink to="/" > Main </NavLink>
+    <div> <h1> Welcome to Book Store! </h1></div>
+
+    </>
   )
 }
 

@@ -7,7 +7,7 @@ const LayoutR = () => {
 
     <div>we are On layout Component </div>
       <header style={{ padding: 12 }}>
-        <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>
+        <NavLink to="/home" end className={({ isActive }) => isActive ? 'active' : ''}>
           Home
         </NavLink>
         {" | "}
