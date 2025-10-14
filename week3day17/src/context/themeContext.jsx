@@ -8,6 +8,17 @@ export function ThemeProvider({children}){
 
     const [theme,setTheme] = useState('light')
     const [name,setName]=useState('Rehan Adil RAA')
+    const [counter,setCounter]=useState(0)
+
+    const increment=()=>{
+      setCounter((prev)=>prev+1)
+    }
+    const decrement=()=>{
+      setCounter((prev)=>prev-1)
+    }
+    const reset=()=>{
+      setCounter(0)
+    }
 
 
 // 3️⃣ useEffect for localStorage persistence
@@ -32,7 +43,7 @@ export function ThemeProvider({children}){
 
       // 5️⃣ Return the context provider
     return (
-      <ThemeContext.Provider value={{ theme, toggleTheme,name }}>
+      <ThemeContext.Provider value={{ theme, toggleTheme,name,increment,decrement,reset,counter }}>
         {children}
       </ThemeContext.Provider>
     );
