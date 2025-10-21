@@ -36,3 +36,19 @@ coverage/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+
+
+# --- Backend (FastAPI) specific ignores ---
+
+# Python virtual environments
+backend/venv/
+venv/
+.env/
+__pycache__/
+*.pyc
+
+# Optional: ignore FastAPI build or cache files
+*.db
+*.sqlite3
+backend/__pycache__/
