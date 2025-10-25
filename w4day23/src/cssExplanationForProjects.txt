@@ -1,0 +1,165 @@
+<section className="px-6 py-12 bg-gray-200 min-h-screen">
+
+px-6 — horizontal padding left/right = 1.5rem. Keeps content from touching the viewport edges.
+
+py-12 — vertical padding top/bottom = 3rem. Gives vertical breathing room above and below the whole section.
+
+bg-gray-200 — light gray background color for the whole section; separates the projects area visually from other sections.
+
+min-h-screen — minimum height equal to 100vh (full viewport height). Ensures the projects section fills at least the screen vertically on first load.
+
+Combined effect: a roomy, visually separated section that fills the screen and doesn’t feel cramped.
+
+<h1 className="text-3xl font-bold text-center mb-10">
+
+text-3xl — font size (~1.875rem). Large header size appropriate for section titles.
+
+font-bold — heavier font weight for emphasis.
+
+text-center — horizontally center the heading (good for wide and narrow screens).
+
+mb-10 — margin-bottom = 2.5rem to separate the heading from the grid.
+
+Why: Clear, centered title with comfortable spacing.
+
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+grid — enable CSS Grid layout.
+
+grid-cols-1 — default to 1 column (mobile).
+
+sm:grid-cols-2 — at the sm breakpoint (≥640px), switch to 2 columns (tablets).
+
+lg:grid-cols-3 — at lg (≥1024px), use 3 columns (desktop).
+
+gap-8 — grid gap of 2rem between rows and columns.
+
+Why: Responsive grid that collapses down for small screens and expands to 2/3 columns on larger screens, with consistent spacing.
+
+Card wrapper
+
+className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 flex flex-col h-full"
+
+Breakdown:
+
+bg-white — card background white (contrast against gray section).
+
+shadow-lg — large box-shadow for depth/elevation.
+
+rounded-xl — large rounded corners for a modern look.
+
+overflow-hidden — clip child content that exceeds card bounds (prevents image overflow and keeps border-radius tidy).
+
+hover:scale-105 — scale the whole card to 105% on hover (subtle pop).
+
+transition-transform — animate transforms (scale) smoothly.
+
+duration-300 — animation duration = 300ms for the hover effect.
+
+flex flex-col — make the card a vertical flex container so children stack; needed to use mt-auto inside.
+
+h-full — let the card stretch to the full height of its grid cell so all cards in the row match height.
+
+Why: Visually consistent cards with hover feedback and layout control — flex + h-full are the key to bottom-aligned buttons.
+
+Image
+
+className="w-full h-40 object-cover"
+
+w-full — image takes full width of the card.
+
+h-40 — fixed height (~10rem) for the image area, keeping card visuals consistent.
+
+object-cover — crop the image to fill the area while preserving aspect ratio; avoids squishing.
+
+Why: Predictable image region and consistent card height regardless of the source photo's aspect ratio.
+
+Card content wrapper
+
+className="p-4 flex flex-col space-y-3 h-full"
+
+p-4 — padding of 1rem inside the content area.
+
+flex flex-col — stack content vertically and allow mt-auto to work.
+
+space-y-3 — vertical spacing between direct children = 0.75rem.
+
+h-full — stretch this content area to the full height of the card so mt-auto can push the buttons to the bottom.
+
+Why: This wrapper organizes title, description, tech tags, and the button row vertically and ensures the layout fills the card height.
+
+Title
+
+className="text-xl font-semibold"
+
+text-xl — title font size (~1.25rem).
+
+font-semibold — medium-bold weight so the title stands out but isn’t as heavy as the section heading.
+
+Why: Readable project title that’s visually primary within the card.
+
+Description
+
+className="text-gray-600 text-sm"
+
+text-gray-600 — subdued gray color for secondary text (less visual weight than the title).
+
+text-sm — smaller font size for compact description.
+
+Why: Keeps the description readable but visually subordinate to the title.
+
+Tech tags wrapper
+
+className="flex flex-wrap gap-2"
+
+flex — lay tags out in a row by default.
+
+flex-wrap — allow tags to wrap to next line when space runs out.
+
+gap-2 — spacing between tag items = 0.5rem.
+
+Why: Tags flow naturally across lines on small screens and stay inline on larger widths.
+
+Single tech tag
+
+className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-md"
+
+bg-blue-100 — very light blue background for the pill.
+
+text-blue-700 — darker blue text for contrast and visual cohesion.
+
+text-xs — extra small text to keep pills compact.
+
+px-2 py-1 — horizontal and vertical padding to make the pill comfortable to read.
+
+rounded-md — small corner radius for pill shape.
+
+Why: Small, readable badges to show technologies without stealing attention.
+
+Buttons row
+
+className="flex justify-between mt-auto pt-4"
+
+flex — align buttons horizontally in a row.
+
+justify-between — push the two buttons to opposite ends (left and right).
+
+mt-auto — crucial: pushes this buttons row to the bottom of the card’s vertical space (auto top margin consumes all available space).
+
+pt-4 — extra padding-top (1rem) above the buttons, visually separating them from the tech tags.
+
+Why: Guarantees buttons stick to the bottom of the card regardless of how much text appears above.
+
+Extra notes, tips & gotchas
+
+h-full on the card and content wrapper is required for mt-auto to work. Without the parent stretching, mt-auto has nothing to push against.
+
+Using object-cover on images avoids distorted thumbnails but will crop the photo; choose a consistent image aspect ratio when possible.
+
+gap-8 controls both row and column spacing — change it to gap-y-8 gap-x-6 if you want different vertical/horizontal spacing.
+
+If you want equal-height cards across varying content, keep h-full on the card and let the grid row height be determined by the tallest card.
+
+For accessibility, add alt text to images (you already have it — good).
+
+To make the hover effect smoother across all browsers, you can combine transform-gpu if needed: transition-transform transform-gpu.
