@@ -1,25 +1,60 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { BsMoonStarsFill, BsSunFill } from "react-icons/bs";
 
-const activeStyle = {
-  fontWeight: "700",
-  textDecoration: "underline",
-};
-
-const Navbar = () => {
+const Navbar = ({ darkMode, setDarkMode }) => {
   return (
-    <nav style={{ padding: "1rem", borderBottom: "1px solid #eee" }} className="bg-[#1E293B] text-white">
-      <NavLink  to="/" style={({ isActive }) => (isActive ? activeStyle : undefined)} end className="inline-block hover:scale-110 transition-transform duration-200">
-        Home
-      </NavLink>
-      {" | "}
-      <NavLink to="/projects" style={({ isActive }) => (isActive ? activeStyle : undefined)} className="inline-block hover:scale-110 transition-transform duration-200">
-        Projects
-      </NavLink>
-      {" | "}
-      <NavLink to="/contact" style={({ isActive }) => (isActive ? activeStyle : undefined)} className="inline-block hover:scale-110 transition-transform duration-200">
-        Contact
-      </NavLink>
+    <nav className="bg-gradient-to-r from-indigo-600 via-blue-700 to-gray-900 dark:from-gray-900 dark:via-gray-800 dark:to-black text-white shadow-lg py-4 px-6 flex justify-between items-center transition-all duration-300">
+
+      {/* Navigation Links */}
+      <div className="space-x-6">
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) =>
+            isActive
+              ? "font-bold underline"
+              : "opacity-80 hover:opacity-100 hover:scale-110 transition-all"
+          }
+        >
+          Home
+        </NavLink>
+
+        <NavLink
+          to="/projects"
+          className={({ isActive }) =>
+            isActive
+              ? "font-bold underline"
+              : "opacity-80 hover:opacity-100 hover:scale-110 transition-all"
+          }
+        >
+          Projects
+        </NavLink>
+
+        <NavLink
+          to="/contact"
+          className={({ isActive }) =>
+            isActive
+              ? "font-bold underline"
+              : "opacity-80 hover:opacity-100 hover:scale-110 transition-all"
+          }
+        >
+          Contact
+        </NavLink>
+      </div>
+
+      {/* Dark Mode Toggle Button */}
+      <button
+        onClick={() => setDarkMode(!darkMode)}
+        className="p-2 rounded-full bg-white/20 dark:bg-black/30 hover:bg-white/40 dark:hover:bg-black/50 transition-all backdrop-blur-md"
+      >
+        {darkMode ? (
+          <BsSunFill className="text-yellow-300" size={20} />
+        ) : (
+          <BsMoonStarsFill className="text-blue-300" size={20} />
+        )}
+      </button>
+
     </nav>
   );
 };

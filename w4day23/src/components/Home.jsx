@@ -4,12 +4,12 @@ import myImage from "../assets/raa.png"; // ✅ Import your picture here
 
 const Home = () => {
   return (
-    <section className="min-h-[80vh] flex flex-col md:flex-row items-center justify-center px-10 py-10 bg-gray-200">
+    <section className="min-h-[80vh] flex flex-col md:flex-row items-center justify-center px-10 py-10 ">
       {/* Left text section */}
       <div className="flex-1 text-center md:text-left space-y-4">
         <h1 className="text-4xl md:text-6xl font-bold">Hey, I am Rehan Adil RAA👋</h1>
 
-        <p className="text-lg md:text-xl text-gray-600">
+        <p className="text-lg md:text-xl ">
           A Software Engineer building modern, clean and responsive web
           applications using React.
         </p>
@@ -26,7 +26,6 @@ const Home = () => {
             sx={{
               borderColor: "blue-200",
               borderWidth: "3px",
-              color: "#1E293B",
               "&:hover": {
                 borderColor: "blue-200",
                 borderWidth: "3px",
@@ -44,7 +43,7 @@ const Home = () => {
         <img
           src={myImage}
           alt="profile placeholder"
-          className="rounded-2xl shadow-lg w-60 md:w-72 hover:scale-110 duration-200 transition-transform"
+          className="rounded-2xl shadow-lg w-60 md:w-72 hover:scale-110 duration-300 transition-transform"
         />
       </div>
     </section>

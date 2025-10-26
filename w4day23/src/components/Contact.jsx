@@ -7,22 +7,27 @@ const Contact = () => {
     register,
     handleSubmit,
     watch,
+    reset, // this reset all form inputs
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
-
+  const onSubmit = (data) => {
+    console.log(data);
+    alert("Form Submited Successfully ✅")
+    reset(); // <-- THIS CLEARS ALL INPUTS
+    
+  }
   console.log(watch("example")); // watch input value by passing the name of it
 
   return (
-    <div className="bg-gray-200 min-h-screen text-center p-4 ">
+    <div className="main  min-h-screen text-center p-4">
       <h1 className="text-3xl font-bold mb-4">Contact Me ☎️</h1>
 
-      <div className="leftCard flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 h-[70vh]">
-        <div className="flex-1 left h-full bg-gray-300  transition-transform duration-300 hover:scale-105">
-          <p className="text-xl font-bold mb-2 mt-6 hover:cursor-pointer">
+      <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
+        <div className="leftCard flex-1 left  transition-transform duration-300 hover:scale-102">
+          <p className="text-xl font-bold mb-2 mt-6 hover:cursor-pointer mx-2">
             Rehan Adil Full Stack Developer
           </p>
-          <p className="text-gray-800 text-sm m-4 hover:cursor-pointer">
+          <p className=" text-sm m-4 hover:cursor-pointer">
             Full Stack Developer (Flask, FastAPI, Node.js) with proven
             experience delivering scalable applications in e-commerce,
             healthcare, fintech, and education. Skilled in RESTful APIs, JWT
@@ -47,59 +52,57 @@ const Contact = () => {
               Phone
             </span>
           </div>
-          <div className="location hover:cursor-pointer mt-4">
-            {" "}
+          <div className="location hover:cursor-pointer mt-4 mb-4">
             <b> Barakahu, Islamabad, Pakistan </b>
           </div>
         </div>
 
-        <div className="rightCard flex-1 right bg-gray-300 h-full transition-transform duration-300 hover:scale-105">
-          <div className="form mt-6 mx-10 flex flex-col items-start ">
-            <h2 className="text-xl font-bold mb-4">Contact Form</h2>
+        <div className="rightCard flex-1 right transition-transform duration-300 hover:scale-102">
+          <div className="form mt-6 mx-10 flex flex-col items-start mb-4">
+            <h2 className="text-xl font-bold mb-4 m-auto">Contact Form</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
               {/* register your input into the hook by invoking the "register" function */}
+              {errors.name && (
+                <span className="text-red-600 text-sm">
+                  {errors.name.message}
+                </span>
+              )}
               <label htmlFor="name" className="text-lg font-bold">
                 Name{" "}
               </label>
               <input
-                className="w-full p-2 border border-gray-500 rounded-md bg-white text-black"
+                className="w-full p-2 border border-gray-500 rounded-md "
                 defaultValue="" placeholder="Rehan"
                 {...register("name", { required: "Name is required" })}
               />
-              {errors.name && (
+
+
+              {errors.email && (
                 <span className="text-red-600 text-sm">
-                  {errors.name.message}
+                  {errors.email.message}
                 </span>
               )}
-
               <label htmlFor="email" className="text-lg font-bold">Email </label>
               <input
-                className="w-full p-2 border border-gray-500 rounded-md bg-white text-black"
+                className="w-full p-2 border border-gray-500 rounded-md"
                 defaultValue="" placeholder="example@gmail.com"
                 {...register("email", { required: "Email is required" })}
               />
-              {errors.name && (
+
+              {errors.message && (
                 <span className="text-red-600 text-sm">
-                  {errors.name.message}
+                  {errors.message.message}
                 </span>
               )}
-
               <label htmlFor="Message" className="text-lg font-bold">Message</label>
               <input
-                className="w-full p-2 border border-gray-500 rounded-md bg-white text-black"
+                className="w-full p-2 border border-gray-500 rounded-md text-black"
                 defaultValue=""
                 {...register("message", { required: "Message is required" })}
               />
-              {errors.name && (
-                <span className="text-red-600 text-sm">
-                  {errors.name.message}
-                </span>
-              )}
 
-              {/* errors will return when field validation fails  */}
-              {errors.exampleRequired && <span>This field is required</span>}
 
-              <input type="submit"  className="text-lg font-bold"/>
+              <input type="submit"  className="text-lg font-bold border-2 mt-4 p-2 border-gray-400  hover:cursor-cell hover:bg-blue-200 hover:border-blue-500 rounded-md"/>
             </form>
           </div>
         </div>

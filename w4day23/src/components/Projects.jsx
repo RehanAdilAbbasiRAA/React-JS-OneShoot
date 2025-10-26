@@ -45,7 +45,7 @@ const projects = [
 
 const Projects = () => {
   return (
-    <section className="px-6 py-6 bg-gray-200 min-h-screen">
+    <section className="px-6 py-6  min-h-screen">
       <h1 className="text-3xl font-bold text-center mb-10">
         My Projects 💼
       </h1>
@@ -55,7 +55,7 @@ const Projects = () => {
         {projects.map((project) => (
           <div
             key={project.id}
-            className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 flex flex-col h-full hover:bg-gray-200"
+            className= "Cards shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 flex flex-col h-full hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             <img
               src={project.image}
