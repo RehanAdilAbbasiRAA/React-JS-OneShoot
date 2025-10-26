@@ -55,7 +55,7 @@ const Projects = () => {
         {projects.map((project) => (
           <div
             key={project.id}
-            className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 flex flex-col h-full"
+            className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 flex flex-col h-full hover:bg-gray-200"
           >
             <img
               src={project.image}
