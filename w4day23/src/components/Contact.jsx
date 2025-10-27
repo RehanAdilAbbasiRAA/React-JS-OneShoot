@@ -23,7 +23,7 @@ const Contact = () => {
       <h1 className="text-3xl font-bold mb-4">Contact Me ☎️</h1>
 
       <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-        <div className="leftCard flex-1 left  transition-transform duration-300 hover:scale-102">
+        <div className="leftCard shadow-lg dark:shadow-white/60 flex-1 left  transition-transform duration-300 hover:scale-102">
           <p className="text-xl font-bold mb-2 mt-6 hover:cursor-pointer mx-2">
             Rehan Adil Full Stack Developer
           </p>
@@ -57,7 +57,7 @@ const Contact = () => {
           </div>
         </div>
 
-        <div className="rightCard flex-1 right transition-transform duration-300 hover:scale-102">
+        <div className="rightCard shadow-lg dark:shadow-white/60 flex-1 right transition-transform duration-300 hover:scale-102">
           <div className="form mt-6 mx-10 flex flex-col items-start mb-4">
             <h2 className="text-xl font-bold mb-4 m-auto">Contact Form</h2>
             <form onSubmit={handleSubmit(onSubmit)}>

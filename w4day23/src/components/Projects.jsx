@@ -55,7 +55,7 @@ const Projects = () => {
         {projects.map((project) => (
           <div
             key={project.id}
-            className= "Cards shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 flex flex-col h-full hover:bg-gray-200 dark:hover:bg-gray-700 "
+            className= "Cards shadow-lg dark:shadow-white/60 rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 flex flex-col h-full hover:bg-gray-200 dark:hover:bg-gray-700 "
           >
             <img
               src={project.image}
@@ -65,7 +65,7 @@ const Projects = () => {
 
             <div className="p-4 flex flex-col space-y-3 h-full">
               <h2 className="text-xl font-semibold">{project.title}</h2>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">{project.description}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">{project.description.slice(0, 36)}..</p>
 
               <div className="flex flex-wrap gap-2">
                 {project.tech.map((t, i) => (

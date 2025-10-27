@@ -7,11 +7,17 @@ const Home = () => {
     <section className="min-h-[80vh] flex flex-col md:flex-row items-center justify-center px-10 py-10 ">
       {/* Left text section */}
       <div className="flex-1 text-center md:text-left space-y-4">
-        <h1 className="text-4xl md:text-6xl font-bold">Hey, I am Rehan Adil RAA👋</h1>
+        <h1 className="text-4xl md:text-6xl font-bold">
+          Hey, I am Rehan Adil RAA👋
+        </h1>
 
         <p className="text-lg md:text-xl ">
-          A Software Engineer building modern, clean and responsive web
-          applications using React.
+          Full Stack Developer (Flask, FastAPI, Node.js) with proven experience
+          delivering scalable applications in e-commerce, healthcare, fintech,
+          and education. Skilled in RESTful APIs, JWT authentication, real-time
+          systems (Socket.IO), and database management (MySQL, MongoDB). Strong
+          expertise in multi-threading, multi-processing, and end-to-end project
+          delivery with a focus on clean, maintainable code.
         </p>
 
         <div className="flex gap-4 mt-4 justify-center md:justify-normal">
@@ -39,11 +45,11 @@ const Home = () => {
       </div>
 
       {/* Right image section (optional for later) */}
-      <div className="flex-1 mt-10 md:mt-0 flex justify-center " >
+      <div className="flex-1 mt-10 md:mt-0 flex justify-center ">
         <img
           src={myImage}
           alt="profile placeholder"
-          className="rounded-2xl shadow-lg w-60 md:w-72 hover:scale-110 duration-300 transition-transform"
+          className="rounded-2xl shadow-lg w-60 md:w-72 hover:scale-110 duration-300 transition-transform dark:shadow-white/60"
         />
       </div>
     </section>
