@@ -25,11 +25,7 @@ function App() {
 
   return (
     <div
-      className={`min-h-screen transition-all duration-500 ${
-        darkMode
-          ? "dark bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white"
-          : "bg-gradient-to-br from-blue-100 via-white to-gray-200 text-black"
-      }`}
+      className="bg-primary dark:bg-dark-primary dark:text-white"
     >
       {/* <div className={darkMode ? "dark bg-gray-900 text-white" : "bg-white text-black"}> */}
       <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
@@ -66,3 +62,5 @@ export default App;
         <div className="bg-green-500 p-4 rounded">3</div>
       </div> */
 }
+
+// check thi link for Dark theme and light theme https://youtu.be/ku99cfuK5wg?si=gWiNpV_o-14wVmMh

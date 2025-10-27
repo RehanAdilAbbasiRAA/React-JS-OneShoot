@@ -4,7 +4,7 @@ import { BsMoonStarsFill, BsSunFill } from "react-icons/bs";
 
 const Navbar = ({ darkMode, setDarkMode }) => {
   return (
-    <nav className="bg-gradient-to-r from-indigo-600 via-blue-700 to-gray-900 dark:from-gray-900 dark:via-gray-800 dark:to-black text-white shadow-lg py-4 px-6 flex justify-between items-center transition-all duration-300">
+    <nav className="bg-gradient-to-r from-indigo-600 via-blue-700 to-gray-900 dark:from-gray-800 dark:via-gray-700 dark:to-black text-white shadow-lg py-4 px-6 flex justify-between items-center transition-all duration-300">
 
       {/* Navigation Links */}
       <div className="space-x-6">
