@@ -10,8 +10,8 @@ const Logout = () => {
   return (
     <>
     <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+    <div className="main flex justify-center items-center dark:bg-dark-primary dark:text-amber-50 min-h-screen flex-col">
     <div>Logout</div>
-    <div className="main flex justify-center items-center">
 <button
   onClick={logout}
   type="submit"

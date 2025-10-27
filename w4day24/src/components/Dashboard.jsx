@@ -10,8 +10,8 @@ const Dashboard = () => {
   return (
     <>
     <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
-    <div>Dashboard</div>
-    <div className="main" >
+    <div className="main dark:bg-dark-primary dark:text-amber-50 min-h-screen" >
+            <div>Dashboard</div>
         <h1>Welcome <b>{user} 👋</b></h1>
         <p>You are Currently Authenticated {login ? "✅" : "❌"}</p>
     </div>
