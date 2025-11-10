@@ -22,11 +22,13 @@ export const loginUser = async (email, password) => {
 export const registerUser = async (email, password,name,sex) => {
     try {
         const reponse =await fetch( `${BASE_URL}/register/${email}/${password}/${name}/${sex}`,
-            {method:"POST",
+            {
+            method:"POST",
             headers:{
                 "Content-Type":"application/json"
+                    }
             }
-    });
+  );
     const data = await reponse.json();
     return data;
 
