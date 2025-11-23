@@ -45,15 +45,6 @@ const Dashboard = () => {
   }, []);
 
 
-
-  // Hard-coded templates
-  const templates = [
-    { id: 1, name: "Portfolio One", views: 120, img: "/template1.png" },
-    { id: 2, name: "Portfolio Two", views: 80, img: "/template2.png" },
-    { id: 3, name: "Portfolio Three", views: 200, img: "/template3.png" },
-    { id: 4, name: "Portfolio Four", views: 50, img: "/template4.png" },
-  ];
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -257,4 +248,12 @@ export default Dashboard;
   //     endDate: "2023-09",
   //     images: ["/project3-1.png", "/project3-2.png"],
   //   },
+  // ];
+
+    // Hard-coded templates
+  // const templates = [
+  //   { id: 1, name: "Portfolio One", views: 120, img: "/template1.png" },
+  //   { id: 2, name: "Portfolio Two", views: 80, img: "/template2.png" },
+  //   { id: 3, name: "Portfolio Three", views: 200, img: "/template3.png" },
+  //   { id: 4, name: "Portfolio Four", views: 50, img: "/template4.png" },
   // ];
