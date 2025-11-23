@@ -187,5 +187,74 @@ async def get_user_info(email: str):
             "intro":user_doc["bio"],
             "socialLinks":user_doc["social_links"]
             }
-    print(data,"Data we send")
+    # print(data,"Data we send")
     return data
+
+@app.get("/getUserProjects/{email}")
+async def get_user_projects(email: str):
+    user = await USER_COLLECTION.find_one({"email": email})
+    if not user:
+        return {"message": "User not found"}
+    user_doc= serialize_doc(user)
+    print(f"User Projects fetched for {email} ✅✅✅ {len(user_doc["projects"])}")
+    data=user_doc["projects"]
+    # print(data,"Data we get")
+    return data
+
+
+
+@app.get("/getUserTemplates/{email}")
+async def get_user_templates(email: str):
+    user = await USER_COLLECTION.find_one({"email": email})
+    if not user:
+        return {"message": "User not found"}
+    user_doc = serialize_doc(user)
+    template_ids = user_doc.get("stats", {}).get("templates_clipped", [])
+    print("User clipped templates:", template_ids)
+
+    # Convert to ObjectId
+    object_ids = [ObjectId(tid) for tid in template_ids]
+
+    # SINGLE BULK QUERY
+    cursor = TEMPLATES_COLLECTION.find({ "_id": { "$in": object_ids } })
+    templates = await cursor.to_list(length=None)
+    # Serialize
+    templates = [serialize_doc(t) for t in templates]
+    # print("Fetched templates:", len(templates) ,"templates " , templates)
+
+    # Build a clean minimal response
+    response = []
+    for t in templates:
+        response.append({
+            "id": str(t.get("_id")),
+            "name": t.get("name"),
+            "views": t.get("stats", {}).get("views", 0),
+            "image": t.get("preview_image")
+        })
+
+    return response
+
+@app.get("/getUserStats/{email}")
+async def get_user_stats(email: str):
+    user = await USER_COLLECTION.find_one({"email": email})
+    if not user:
+        return {"message": "User not found"}
+
+    user_doc = serialize_doc(user)
+    template_ids = user_doc.get("stats", {}).get("templates_clipped", [])
+
+    object_ids = [ObjectId(t) for t in template_ids]
+
+    cursor = TEMPLATES_COLLECTION.find({ "_id": { "$in": object_ids } })
+    templates = await cursor.to_list(length=None)
+    templates = [serialize_doc(t) for t in templates]
+
+    total_views = sum(t.get("stats", {}).get("views", 0) for t in templates)
+    # print("Total views:", total_views)
+    # print("Template count:", len(templates))
+
+    return {
+        "templateCount": len(templates),
+        "totalViews": total_views
+    }
+

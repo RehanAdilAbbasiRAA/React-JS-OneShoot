@@ -24,3 +24,36 @@ export const getUserInfo = async (userId) => {
     return { message: "Network error" };
   }
 };
+
+export const getUserProjects = async (userId) => {
+    try{
+        const data=await fetchWithAuth(`/getUserProjects/${userId}`, "GET");
+        console.log("API getUserProjects data:", data);
+        return data;
+    } catch (error) {
+    console.log(error);
+    return { message: "Network error" };
+  }
+};
+
+export const getUserTemplates = async (userId) => {
+    try{
+        const data=await fetchWithAuth(`/getUserTemplates/${userId}`, "GET");
+        console.log("API getUserProjects data:", data);
+        return data;
+    } catch (error) {
+    console.log(error);
+    return { message: "Network error" };
+  }
+};
+
+export const getUserStats = async (userId) => {
+    try{
+        const data=await fetchWithAuth(`/getUserStats/${userId}`, "GET");
+        console.log("API getUserProjects data:", data);
+        return data;
+    } catch (error) {
+    console.log(error);
+    return { message: "Network error" };
+  }
+};
