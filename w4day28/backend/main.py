@@ -1,12 +1,17 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
 from typing import Dict
 from fastapi import Body
 from db import db,USER_COLLECTION,CONTACT_COLLECTION,HITS_COLLECTION,TEMPLATES_COLLECTION
 from utils import serialize_doc
+from auth import create_access_token, create_refresh_token, verify_token
+from bson.objectid import ObjectId
+from hash_password import hash_password
 
 
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 app = FastAPI()
 
 # Allow frontend (React) requests
@@ -22,6 +27,82 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"message": "FastAPI backend is running!"}
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+    print(payload,"Current User Payload")
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    return payload
+
+@app.post("/login/{email}/{password}")
+async def login(email: str, password: str):
+    user = await USER_COLLECTION.find_one({"email": email, "password_hash": password})
+    if not user:
+        return {"message": "Invalid credentials"}
+
+    user = serialize_doc(user)
+    access_token = create_access_token({"sub": user["email"]})
+    refresh_token = create_refresh_token({"sub": user["email"]})
+    print(user)
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "user": user,
+        "email": user["email"],
+        "name": user["display_name"],
+        "user_id": str(user["_id"]),
+        "token_type": "bearer",
+        "message": "Login successful"
+    }
+@app.post("/refresh")
+async def refresh_token(refresh_token: str = Body(...)):
+    payload = verify_token(refresh_token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    email = payload.get("sub")
+    new_access_token = create_access_token({"sub": email})
+    return {"access_token": new_access_token}
+
+@app.get("/protected")
+async def protected_route(current_user: dict = Depends(get_current_user)):
+    return {"message": f"Welcome {current_user['sub']}! You’re authorized."}
+
+@app.get("/user/profile/{user_id}")
+async def get_setting(user_id: str,token: str = Depends(get_current_user)):
+    print(user_id)
+    user_id=ObjectId(user_id)
+    user=await USER_COLLECTION.find_one({"_id": user_id})
+    if not user:
+        print("User not found")
+        return {"message": "User not found"}
+    user_doc= serialize_doc(user)
+    # print(user_doc,"Data we get")
+    return {"name":user_doc["display_name"],"email":user_doc["email"],
+            # "password":user_doc["password_hash"]
+            "avatar":user_doc["avatar_url"]
+            }
+
+
+@app.post("/user/profile/{user_id}")
+async def update_user_profile(user_id: str, data: dict = Body(...)):
+    user_id = ObjectId(user_id)
+    update_data = {}
+    if "name" in data:
+        update_data["display_name"] = data["name"]
+    if "email" in data:
+        update_data["email"] = data["email"]
+    if "avatar" in data:
+        update_data["avatar_url"] = data["avatar"]
+    if "password" in data:
+        # update_data["password_hash"] = hash_password(data["password"])  # hash function
+        update_data["password_hash"] = data["password"]
+
+    result = await USER_COLLECTION.update_one({"_id": user_id}, {"$set": update_data})
+    print(f" data Updated in DB ✅✅✅ {update_data}")
+    return {"success": result.modified_count == 1}
+
+
 
 @app.get("/gettasks")
 def get_tasks():
@@ -52,14 +133,14 @@ async def get_all_templates():
     serialized_template = [serialize_doc(template) for template in templates]
     return {"templates": serialized_template}
 
-@app.post("/login/{email}/{password}")
-async def login(email: str, password: str):
-    user = await USER_COLLECTION.find_one({"email": email, "password_hash": password})
-    if not user:
-        return {"message": "Invalid credentials"}
-    else:
-        user=serialize_doc(user)
-    return {"User": user,"message": "Login successful"}
+# @app.post("/login/{email}/{password}")
+# async def login(email: str, password: str):
+#     user = await USER_COLLECTION.find_one({"email": email, "password_hash": password})
+#     if not user:
+#         return {"message": "Invalid credentials"}
+#     else:
+#         user=serialize_doc(user)
+#     return {"User": user,"message": "Login successful"}
 
 @app.post("/register/{email}/{password}/{name}/{sex}")
 async def register_user(email: str, password: str, name: str, sex: str):
@@ -91,3 +172,20 @@ async def register_user(email: str, password: str, name: str, sex: str):
     #     user=serialize_doc(user)
     # return {"User": user,"message": "Login successful"}
 
+
+@app.get("/getuserInfo/{email}")
+async def get_user_info(email: str):
+    user = await USER_COLLECTION.find_one({"email": email})
+    if not user:
+        return {"message": "User not found"}
+    user_doc= serialize_doc(user)
+    # print(user_doc,"Data we get")
+    print(email,"Data we get")
+    data={"name":user_doc["display_name"],
+            "title":user_doc["title"],
+            "avatar":user_doc["avatar_url"],
+            "intro":user_doc["bio"],
+            "socialLinks":user_doc["social_links"]
+            }
+    print(data,"Data we send")
+    return data

@@ -1,4 +1,5 @@
 import React from "react";
+import Picture from "../assets/profile.png";
 import { Mail, Phone, Linkedin, Github, Twitter } from "lucide-react";
 
 const About = () => {
@@ -14,7 +15,7 @@ const About = () => {
         <div className="flex-1 flex justify-center md:justify-start">
           <div className="w-64 h-64 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105">
             <img
-              src="/user-avatar.png"
+              src={Picture}
               alt="Profile"
               className="w-full h-full object-cover"
             />

@@ -7,40 +7,187 @@
 }
 
 :root {
-  --color-primary: #e2e2e2;
-  --color-text: #111;
+  --color-navbar: #3F5B6E;
+  --color-navbar-text: #fbfdff;
+  --color-navbar-border: #fbfdff;
+  --color-footer: #3F5B6E;
+  --color-footer-text: #ffffff;
+  --color-footer-border: #ffffff;
+  --color-primary: #BBC5CE;
+  --color-text: #222121;
   --color-border:#000000;
-  --color-card: #cfcfcf;
+  --color-card: #3F5B6E;
   --color-active: #818080;
+  --color-card-text: #f8f8f8;
+  --color-card-border: #f8f8f8;
 }
 
 .dark {
-  --color-primary: #111;
+  --color-navbar: #000000;
+  --color-navbar-text: #ffffff;
+  --color-navbar-border: #bbbaba;
+  --color-footer: #000000;
+  --color-footer-text: #ffffff;
+  --color-footer-border: #ffffff;
+  --color-primary: #252525;
   --color-text: #f8f8f8;
   --color-border:#fff0f0;
-  --color-card: #cfcfcf;
+  --color-card: #414141;
+  --color-card-text: #f8f8f8;
+  --color-card-border: #f8f8f8;
   --color-active: #b6b6b6;
 }
 
 .theme-ocean {
-  --color-primary: #187088;
+  --color-navbar: #7f15d5b7;
+  --color-navbar-text: #ffffff;
+  --color-navbar-border: #bbbaba;
+  --color-footer: #7f15d5b7;
+  --color-footer-text: #ffffff;
+  --color-footer-border: #bbbaba;
+  --color-primary: #621ca9;
   --color-text: #32daf8;
   --color-border:#039ab4;
-  --color-card: #cfcfcf;
-    --color-active: #16d3e0;
+  --color-card: #550b9f;
+  --color-card-text: #f8f8f8;
+  --color-card-border: #f8f8f8;
+  --color-active: #16d3e0;
 }
 
 .theme-forest {
-  --color-primary: #14532d;
-  --color-text: #22c55e;
+  --color-navbar: #02ab45;
+  --color-navbar-text: #ffffff;
+  --color-navbar-border: #bbbaba;
+  --color-footer: #02ab45;
+  --color-footer-text: #ffffff;
+  --color-footer-border: #ffffff;
+  --color-primary: #047230;
+  --color-text: #35e375;
   --color-border:#00b944;
-  --color-card: #cfcfcf;
+  --color-card: #086114;
+  --color-card-text: #f8f8f8;
+  --color-card-border: #f8f8f8;
   --color-active: #11faac;
 }
+
+/* NEW Gradient Theme */
+
+
+.theme-deepblue {
+  --color-navbar: linear-gradient(90deg, #001f3f, #005f73);
+  --color-navbar-text: #e0fbfc;
+  --color-navbar-border: #98c1d9;
+  --color-footer: linear-gradient(90deg, #001f3f, #005f73);
+  --color-footer-text: #e0fbfc;
+  --color-footer-border: #98c1d9;
+  --color-primary: #023047;
+  --color-text: #caf0f8;
+  --color-border: #219ebc;
+  --color-card: #03045e;
+  --color-card-text: #f8f8f8;
+  --color-card-border: #8ecae6;
+  --color-active: #00b4d8;
+}
+
+.theme-sunset {
+  --color-navbar-bg: linear-gradient(90deg, #ff9966 0%, #ff5e62 100%);
+  --color-navbar: #ff6a00;
+  --color-navbar-text: #ffffff;
+  --color-navbar-border: #ffe5b4;
+
+  --color-footer-bg: linear-gradient(90deg, #ff9966 0%, #ff5e62 100%);
+  --color-footer: #ff6a00;
+  --color-footer-text: #ffffff;
+  --color-footer-border: #ffe5b4;
+
+  /* Add this for main/body gradient */
+  --color-primary-bg: linear-gradient(180deg, #fad7bf 0%, #ffb78b 50%, #ec774d 100%);
+  --color-primary: #ff9770;
+  --color-text: #fff9f0;
+  --color-border: #ffb703;
+  --color-card: #f55d3e;
+  --color-card-text: #ffffff;
+  --color-card-border: #ffe5b4;
+  --color-active: #ffd166;
+}
+
+.theme-neonfrost {
+  --color-navbar-bg: linear-gradient(90deg, #00f5d4 0%, #00bbf9 100%);
+  --color-navbar: #00bbf9;
+  --color-navbar-text: #001219;
+  --color-navbar-border: #b2f7ef;
+
+  --color-footer-bg: linear-gradient(90deg, #00f5d4 0%, #00bbf9 100%);
+  --color-footer: #00bbf9;
+  --color-footer-text: #001219;
+  --color-footer-border: #b2f7ef;
+
+  /* Page background gradient */
+  --color-primary-bg: linear-gradient(180deg, #e0fbff 0%, #c6f7ff 50%, #90e0ef 100%);
+  --color-primary: #caf0f8;
+  --color-text: #00296b;
+  --color-border: #0077b6;
+  --color-card: #48cae4;
+  --color-card-text: #001219;
+  --color-card-border: #ade8f4;
+  --color-active: #00b4d8;
+}
+
+.theme-midnight {
+  --color-navbar-bg: linear-gradient(90deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  --color-navbar: #1e1e2f;
+  --color-navbar-text: #ffffff;
+  --color-navbar-border: #8ecae6;
+
+  --color-footer-bg: linear-gradient(90deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  --color-footer: #1e1e2f;
+  --color-footer-text: #ffffff;
+  --color-footer-border: #8ecae6;
+
+  /* Subtle dark page gradient */
+  --color-primary-bg: linear-gradient(180deg, #0f1720 0%, #101420 50%, #1a1a40 100%);
+  --color-primary: #121212;
+  --color-text: #e0e0e0;
+  --color-border: #3a0ca3;
+  --color-card: #1a1a40;
+  --color-card-text: #f8f8f8;
+  --color-card-border: #8ecae6;
+  --color-active: #7209b7;
+}
+
+
+
 
 body {
   background-color: var(--color-primary);
   color: var(--color-text);
   border:var(--color-border);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* ---- Navbar (keep if you already have it) ---- */
+nav {
+  background: var(--color-navbar-bg, var(--color-navbar)) !important;
+  color: var(--color-navbar-text);
+  border-bottom: 1px solid var(--color-navbar-border);
+  transition: background 0.4s ease;
+}
+
+/* ---- Footer (keep if you already have it) ---- */
+footer {
+  background: var(--color-footer-bg, var(--color-footer)) !important;
+  color: var(--color-footer-text);
+  border-top: 1px solid var(--color-footer-border);
+  transition: background 0.4s ease;
+}
+
+/* ---- Main / Page Body Auto-detect (fixed) ---- */
+.main,
+main {
+  /* Use primary-bg (gradient) if present, otherwise fallback to primary */
+  background: var(--color-primary-bg, var(--color-primary)) !important;
+  color: var(--color-text);
+  border-color: var(--color-border);
+  transition: background 0.4s ease, color 0.3s ease;
 }

@@ -16,6 +16,10 @@ export const ThemeProvider = ({ children }) => {
       if (prev === "light") return "dark";
       if (prev === "dark") return "theme-ocean";
       if (prev === "theme-ocean") return "theme-forest";
+      if (prev === "theme-forest") return "theme-deepblue";
+      if (prev === "theme-deepblue") return "theme-sunset";
+      if (prev === "theme-sunset") return "theme-neonfrost";
+      if (prev === "theme-neonfrost") return "theme-midnight";
       return "light";
     });
   };

@@ -7,21 +7,24 @@ import Templates from './components/Templates'
 import Settings from './components/Settings'
 import Contact from './components/Contact'
 import About from './components/About'
-import Login from './components/Login'
+import LoginSignup from './components/LoginSignup'
 import { Routes, Route } from "react-router-dom";
+import { Toaster, toast } from 'react-hot-toast';// use For Toast to catch errro and Show at the Top
 
 function App() {
   const [count, setCount] = useState(0)
 
+
   return (
 <div className="min-h-screen flex flex-col p-0">
+     <Toaster position="top-right" />
       {/* Navbar at top */}
       <Navbar />
 
       {/* Main content area — grows to fill leftover space */}
       <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<LoginSignup />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/templates" element={<Templates />} />
           <Route path="/settings" element={<Settings />} />

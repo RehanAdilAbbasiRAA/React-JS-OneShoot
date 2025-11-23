@@ -1,19 +1,45 @@
 import React from "react";
+import { useEffect,useState } from "react";
+import { getUserInfo } from "../api/dashboardApi"; //To update data (dispatch login/logout):
+import { useSelector } from "react-redux"; // Impo
 
 const Dashboard = () => {
+  const { isAuthenticated, user,user_data } = useSelector((state) => state.auth);
+  const [userInfo, setUserInfo] = useState(null);
+  console.log(user_data, isAuthenticated);
+  console.log("Dashboard Mounted");
+  useEffect(() => {
+    if (!user_data){
+      console.log("User not logged in");
+      return;
+    }
+
+      console.log("getting Dashboard data");
+      async function fetchData() {
+        try {
+          setUserInfo(await getUserInfo(user_data.email));
+          console.log("Dashboard data fetched:", userInfo);
+        } catch (error) {
+          console.error("Error fetching dashboard data:", error);
+        }
+      }
+      fetchData();
+
+  }, [])
+  
   // Hard-coded user info
-  const userInfo = {
-    name: "John Doe",
-    title: "Full-stack Developer",
-    avatar: "/user-avatar.png",
-    intro: "Passionate developer building modern, responsive, and interactive web applications. Experienced in React, Node.js, and full-stack development.",
-    socialLinks: {
-      github: "https://github.com/johndoe",
-      linkedin: "https://linkedin.com/in/johndoe",
-      twitter: "https://twitter.com/johndoe",
-      email: "johndoe@example.com",
-    },
-  };
+  // const userInfo = {
+  //   name: "John Doe",
+  //   title: "Full-stack Developer",
+  //   avatar: "/user-avatar.png",
+  //   intro: "Passionate developer building modern, responsive, and interactive web applications. Experienced in React, Node.js, and full-stack development.",
+  //   socialLinks: {
+  //     github: "https://github.com/johndoe",
+  //     linkedin: "https://linkedin.com/in/johndoe",
+  //     twitter: "https://twitter.com/johndoe",
+  //     email: "johndoe@example.com",
+  //   },
+  // };
 
   // Hard-coded projects
   const projects = [
@@ -53,6 +79,10 @@ const Dashboard = () => {
     { id: 3, name: "Portfolio Three", views: 200, img: "/template3.png" },
     { id: 4, name: "Portfolio Four", views: 50, img: "/template4.png" },
   ];
+
+  if (!userInfo) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="p-6 flex flex-col gap-10 max-w-7xl mx-auto">

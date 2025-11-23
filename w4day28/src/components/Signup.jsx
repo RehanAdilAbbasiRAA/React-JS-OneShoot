@@ -1,7 +1,6 @@
 import React from 'react'
 import { registerUser } from "../api/authApi";
 import { useState } from "react";
-import { data } from 'react-router-dom';
 
 const Signup = ({setIsFlipped}) => {
   const [email, setEmail] = useState("");
@@ -26,7 +25,11 @@ const Signup = ({setIsFlipped}) => {
   };
 
   return (
-            <div className="box1 flex flex-col justify-center items-center h-[80vh] w-[40vw] bg-white rounded-4xl p-8 shadow-lg">
+    <div className="main flex justify-center items-center h-screen bg-[var(--color-primary)]">
+      {/* signup form*/}
+        
+
+            <div className="box1 flex flex-col justify-center items-center h-[80vh] w-[40vw] bg-[var(--color-card)] text-[var(--color-card-text)] border-[var(--color-card-border)]  rounded-4xl p-8 shadow-lg">
           <h1 className="text-3xl font-bold mb-6">SIGNUP</h1>
           <div className="error text-2xl text-red-500 font-bold">{error}</div>
 
@@ -36,7 +39,7 @@ const Signup = ({setIsFlipped}) => {
               onSubmit={(e) => handleSignup(e)}
               className="flex flex-col gap-4"
             >
-              <label htmlFor="password" className="text-gray-700 font-medium">
+              <label htmlFor="password" className="font-medium">
                 Name :
               </label>
               <input
@@ -49,7 +52,7 @@ const Signup = ({setIsFlipped}) => {
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
               />
 
-              <label htmlFor="email" className="text-gray-700 font-medium">
+              <label htmlFor="email" className=" font-medium">
                 Email :
               </label>
               <input
@@ -62,7 +65,7 @@ const Signup = ({setIsFlipped}) => {
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
               />
 
-              <label htmlFor="password" className="text-gray-700 font-medium">
+              <label htmlFor="password" className="font-medium">
                 Password :
               </label>
               <input
@@ -75,7 +78,7 @@ const Signup = ({setIsFlipped}) => {
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
               />
 
-              <label className="text-gray-700 font-medium">SEX :</label>
+              <label className="font-medium">SEX :</label>
               <div className="flex gap-4">
                 <label className="flex items-center gap-1">
                   <input
@@ -118,6 +121,7 @@ const Signup = ({setIsFlipped}) => {
               </button>
             </div>
           </div>
+        </div>
         </div>
   )
 }
