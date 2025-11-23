@@ -10,7 +10,7 @@ import { store } from "./app/store";
 
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <BrowserRouter>
     <ThemeProvider>
       <Provider store={store}>
@@ -20,5 +20,5 @@ createRoot(document.getElementById('root')).render(
     </ThemeProvider>
       
     </BrowserRouter>
-  </StrictMode>,
+  // </StrictMode>,
 )
