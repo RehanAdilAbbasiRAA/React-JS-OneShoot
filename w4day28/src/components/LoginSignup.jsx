@@ -39,11 +39,11 @@ const LoginSignup = () => {
     const result = await loginUser(email, password);
 
     if (result.message === "Login successful") {
-      // Inside handleSubmit after successful login
-      if (result.access_token && result.refresh_token) {
-        localStorage.setItem("access_token", result.access_token);
-        localStorage.setItem("refresh_token", result.refresh_token);
-      }
+      // Inside handleSubmit after successful login ✅✅ this local storege part is handedled in authApi.js
+      // if (result.access_token && result.refresh_token) {
+      //   localStorage.setItem("access_token", result.access_token);
+      //   localStorage.setItem("refresh_token", result.refresh_token);
+      // }
       setError("");
       // alert(`Login Successful with details ${email}`);
       const userData = {

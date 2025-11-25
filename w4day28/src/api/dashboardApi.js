@@ -57,3 +57,14 @@ export const getUserStats = async (userId) => {
     return { message: "Network error" };
   }
 };
+
+export const getAllTemplates = async () => {
+    try{
+        const data=await fetchWithAuth(`/getAllTemplates`, "GET");
+        console.log("API getAllTemplates data:", data);
+        return data;
+    } catch (error) {
+    console.log(error);
+    return { message: "Network error" };
+  }
+};

@@ -66,8 +66,9 @@ export const refreshAccessToken = async () => {
       },
       body: JSON.stringify({ refresh_token: refreshToken }),
     });
-
+    console.log("Refresh token response status:", response);
     const data = await response.json();
+    console.log("Refresh token response:", data);
 
     // If success, update the new access token
     if (data.access_token) {
@@ -99,13 +100,17 @@ export const fetchWithAuth = async (endpoint, method = "GET", body = null) => {
       headers,
       body: body ? JSON.stringify(body) : null,
     });
+      console.log("main fetchWithAuth Without Refresh:", token);
 
     // If token expired (401), try to refresh
     if (response.status === 401) {
+      console.log("Access token expired, attempting to refresh...");
       const refreshed = await refreshAccessToken();
       if (refreshed && refreshed.access_token) {
         // Retry the same request again with the new token
-        return fetchWithAuth(endpoint, method, body);
+        const data=await fetchWithAuth(endpoint, method, body);
+        console.log("Retried fetchWithAuth after refresh:", refreshed.access_token);
+        return data;
       } else {
         console.warn("Refresh failed. Please log in again.");
         return { message: "Session expired. Please log in again." };

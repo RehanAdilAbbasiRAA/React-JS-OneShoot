@@ -42,7 +42,7 @@ const Contact = () => {
             onChange={handleChange}
             required
             className="peer w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-primary)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-active)] transition"
-            placeholder="Your Name"
+            // placeholder="Your Name"
           />
           <label
             className="absolute left-3 top-3 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
@@ -60,7 +60,7 @@ const Contact = () => {
             onChange={handleChange}
             required
             className="peer w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-primary)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-active)] transition"
-            placeholder="Your Email"
+            // placeholder="Your Email"
           />
           <label
             className="absolute left-3 top-3 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
@@ -78,7 +78,7 @@ const Contact = () => {
             onChange={handleChange}
             required
             className="peer w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-primary)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-active)] transition"
-            placeholder="Subject"
+            // placeholder="Subject"
           />
           <label
             className="absolute left-3 top-3 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
@@ -96,7 +96,7 @@ const Contact = () => {
             required
             rows="5"
             className="peer w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-primary)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-active)] transition resize-none"
-            placeholder="Your Message"
+            // placeholder="Your Message"
           />
           <label
             className="absolute left-3 top-3 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
