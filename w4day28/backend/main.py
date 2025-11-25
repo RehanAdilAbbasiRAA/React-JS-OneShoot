@@ -32,6 +32,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     payload = verify_token(token)
     print(payload,"Current User Payload")
     if not payload:
+        print("Invalid or expired token")
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return payload
 
@@ -55,14 +56,30 @@ async def login(email: str, password: str):
         "token_type": "bearer",
         "message": "Login successful"
     }
+# @app.post("/refresh")
+# async def refresh_token(refresh_token: str = Body(...)):
+#     payload = verify_token(refresh_token)
+#     if not payload:
+#         raise HTTPException(status_code=401, detail="Invalid refresh token")
+#     email = payload.get("sub")
+#     new_access_token = create_access_token({"sub": email})
+#     return {"access_token": new_access_token}
+
+from pydantic import BaseModel
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
 @app.post("/refresh")
-async def refresh_token(refresh_token: str = Body(...)):
-    payload = verify_token(refresh_token)
+async def refresh_token(data: RefreshRequest):
+    payload = verify_token(data.refresh_token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+
     email = payload.get("sub")
     new_access_token = create_access_token({"sub": email})
     return {"access_token": new_access_token}
+
 
 @app.get("/protected")
 async def protected_route(current_user: dict = Depends(get_current_user)):
@@ -257,4 +274,14 @@ async def get_user_stats(email: str):
         "templateCount": len(templates),
         "totalViews": total_views
     }
+
+
+@app.get("/getAllTemplates")
+async def get_all_templates():
+    cursor = TEMPLATES_COLLECTION.find({})
+    templates = await cursor.to_list(length=None)
+    # serialize all documents recursively
+    serialized_template = [serialize_doc(template) for template in templates]
+    print("Total templates fetched:", len(serialized_template), "templates", serialized_template)
+    return serialized_template
 
