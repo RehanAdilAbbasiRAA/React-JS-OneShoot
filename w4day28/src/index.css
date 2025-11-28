@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  --bubble-color-1: #FF6B6B;
+  --bubble-color-2: #4D96FF;
+}
+
 @theme {
   --color-primary: #F8F8F8;
   --color-dark-primary: black;

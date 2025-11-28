@@ -2,11 +2,14 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { getUserInfo, getUserProjects,getUserTemplates ,getUserStats} from "../api/dashboardApi"; //To update data (dispatch login/logout):
 import { useSelector } from "react-redux"; // Impo
+import { useNavigate } from "react-router-dom";
+
 
 const Dashboard = () => {
   const { isAuthenticated, user, user_data } = useSelector(
     (state) => state.auth
   );
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [userProjects, setUserProject] = useState([]);
   const [userTemplates, setUserTemplates] = useState([])
@@ -43,6 +46,18 @@ const Dashboard = () => {
     }
     fetchData();
   }, []);
+
+    const handleDelete = async (id) => {
+    if (!window.confirm("Delete this project?")) return;
+
+    try {
+      await deleteUserProject(id);
+      setUserProject(userProjects.filter(p => p.project_id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+    };
+
 
 
   if (loading) {
@@ -134,15 +149,43 @@ const Dashboard = () => {
 
       {/* === Bottom Section: Projects === */}
       <div className="flex flex-col gap-6">
-        <h2 className="text-2xl font-bold text-[var(--color-text)]">
-          Your Projects
-        </h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-[var(--color-text)]">
+              Your Projects
+            </h2>
+
+            <button
+              onClick={() => navigate("/project/new")}
+              className="px-4 py-2 bg-[var(--color-active)] rounded-lg text-[var(--color-primary)] hover:opacity-80"
+            >
+              + Add Project
+            </button>
+          </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {userProjects.map((project, idx) => (
             <div
               key={project.project_id}
               className="bg-[var(--color-card)] rounded-lg shadow-md hover:shadow-xl transition duration-300 p-4"
             >
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 mt-4">
+            <button
+              onClick={() => navigate(`/project/edit/${project.project_id}`)}
+              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Edit
+            </button>
+
+            <button
+              onClick={() => handleDelete(project.project_id)}
+              className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+
               <h3 className="text-xl font-semibold text-[var(--color-text)]">
                 {project.name}
               </h3>

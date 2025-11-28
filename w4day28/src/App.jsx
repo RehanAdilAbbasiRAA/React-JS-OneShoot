@@ -9,6 +9,7 @@ import Contact from './components/Contact'
 import About from './components/About'
 import LoginSignup from './components/LoginSignup'
 import { Routes, Route } from "react-router-dom";
+import ProjectForm from './components/ProjectForm'
 import { Toaster, toast } from 'react-hot-toast';// use For Toast to catch errro and Show at the Top
 
 function App() {
@@ -30,6 +31,8 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/contact" element={<Contact />} /> 
           <Route path="/about" element={<About />} />
+          <Route path="/project/new" element={<ProjectForm />} />
+          <Route path="/project/edit/:id" element={<ProjectForm />} />
         </Routes>
       </main>
 

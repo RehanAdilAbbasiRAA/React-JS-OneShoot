@@ -68,3 +68,17 @@ export const getAllTemplates = async () => {
     return { message: "Network error" };
   }
 };
+
+
+
+export const createProject = (payload) =>
+  fetchWithAuth("/user/addProject", "POST", payload);
+
+export const updateProject = (id, payload) =>
+  fetchWithAuth(`/user/updateProject/${id}`, "PUT", payload);
+
+export const deleteUserProject = (id) =>
+  fetchWithAuth(`/user/deleteProject/${id}`, "DELETE");
+
+export const getSingleProject = (id) =>
+  fetchWithAuth(`/user/project/${id}`, "GET");
