@@ -8,6 +8,10 @@ from utils import serialize_doc
 from auth import create_access_token, create_refresh_token, verify_token
 from bson.objectid import ObjectId
 from hash_password import hash_password
+from fastapi import Request
+from datetime import datetime
+
+
 
 
 
@@ -285,3 +289,66 @@ async def get_all_templates():
     print("Total templates fetched:", len(serialized_template), "templates", serialized_template)
     return serialized_template
 
+@app.post("/user/addProject")
+async def add_project(request: Request):
+    data = await request.json()
+    
+    email = data.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+    
+    # Find user
+    user = await USER_COLLECTION.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user = serialize_doc(user)
+    
+    # Process and validate data
+    project = {}
+
+    # Required fields
+    project["project_id"] = ObjectId()  # generate unique id
+    project["name"] = data.get("name", "")
+    project["summary"] = data.get("summary", "")
+
+    # Date validation
+    start_date = data.get("startDate")
+    end_date = data.get("endDate")
+    if start_date and end_date:
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+        if start_dt > end_dt:
+            raise HTTPException(status_code=400, detail="Start date cannot be after end date")
+        project["duration"] = {"from": start_date, "to": end_date}
+    else:
+        project["duration"] = {"from": None, "to": None}
+
+    # Arrays
+    project["technologies"] = data.get("technologies", [])
+    project["databases"] = data.get("databases", [])
+
+    # Languages: split by comma if received as string
+    languages = data.get("languages", [])
+    if isinstance(languages, str):
+        languages = [lang.strip() for lang in languages.split(",") if lang.strip()]
+    project["languages"] = languages
+
+    # Images
+    project["images"] = data.get("images", [])
+
+    # Links and type
+    project["github"] = data.get("github", "")
+    project["liveURL"] = data.get("liveURL", "")
+    project["linkedIn"] = data.get("linkedIn", "")
+    project["type"] = data.get("type", "")
+
+    # Append to user's projects
+    updated_projects = user.get("projects", [])
+    updated_projects.append(project)
+
+    await USER_COLLECTION.update_one(
+        {"email": email},
+        {"$set": {"projects": updated_projects}}
+    )
+
+    return {"message": "Project added successfully"}

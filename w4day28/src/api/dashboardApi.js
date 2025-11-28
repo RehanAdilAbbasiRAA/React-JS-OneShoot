@@ -15,64 +15,79 @@ export const setUserProfile = async (userId, payload) => {
   }
 };
 
-
 export const getUserInfo = async (userId) => {
-    try{
-        return await fetchWithAuth(`/getuserInfo/${userId}`, "GET");
-    } catch (error) {
+  try {
+    return await fetchWithAuth(`/getuserInfo/${userId}`, "GET");
+  } catch (error) {
     console.log(error);
     return { message: "Network error" };
   }
 };
 
 export const getUserProjects = async (userId) => {
-    try{
-        const data=await fetchWithAuth(`/getUserProjects/${userId}`, "GET");
-        console.log("API getUserProjects data:", data);
-        return data;
-    } catch (error) {
+  try {
+    const data = await fetchWithAuth(`/getUserProjects/${userId}`, "GET");
+    console.log("API getUserProjects data:", data);
+    return data;
+  } catch (error) {
     console.log(error);
     return { message: "Network error" };
   }
 };
 
 export const getUserTemplates = async (userId) => {
-    try{
-        const data=await fetchWithAuth(`/getUserTemplates/${userId}`, "GET");
-        console.log("API getUserProjects data:", data);
-        return data;
-    } catch (error) {
+  try {
+    const data = await fetchWithAuth(`/getUserTemplates/${userId}`, "GET");
+    console.log("API getUserProjects data:", data);
+    return data;
+  } catch (error) {
     console.log(error);
     return { message: "Network error" };
   }
 };
 
 export const getUserStats = async (userId) => {
-    try{
-        const data=await fetchWithAuth(`/getUserStats/${userId}`, "GET");
-        console.log("API getUserProjects data:", data);
-        return data;
-    } catch (error) {
+  try {
+    const data = await fetchWithAuth(`/getUserStats/${userId}`, "GET");
+    console.log("API getUserProjects data:", data);
+    return data;
+  } catch (error) {
     console.log(error);
     return { message: "Network error" };
   }
 };
 
 export const getAllTemplates = async () => {
-    try{
-        const data=await fetchWithAuth(`/getAllTemplates`, "GET");
-        console.log("API getAllTemplates data:", data);
-        return data;
-    } catch (error) {
+  try {
+    const data = await fetchWithAuth(`/getAllTemplates`, "GET");
+    console.log("API getAllTemplates data:", data);
+    return data;
+  } catch (error) {
     console.log(error);
     return { message: "Network error" };
   }
 };
 
+export const createProject = async (payload, email) => {
+  try {
+    // Merge email into the project payload
+    const body = { ...payload, email };
 
+    console.log("API createProject payload:", body);
 
-export const createProject = (payload) =>
+    const data = await fetchWithAuth("/user/addProject", "POST", body);
+
+    console.log("API createProject data:", data);
+    return data;
+  } catch (error) {
+    console.log(error);
+    return { message: "Network error" };
+  }
+};
+
+export const addProject = (payload) => {
   fetchWithAuth("/user/addProject", "POST", payload);
+};
 
 export const updateProject = (id, payload) =>
   fetchWithAuth(`/user/updateProject/${id}`, "PUT", payload);

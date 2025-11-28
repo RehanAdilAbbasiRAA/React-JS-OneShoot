@@ -6,8 +6,21 @@ import {
   createProject,
   updateProject,
 } from "../api/dashboardApi";
+import { useSelector } from "react-redux"; // Impo
 
 const ProjectForm = () => {
+    const { isAuthenticated, user, user_data } = useSelector(
+      (state) => state.auth
+    );
+
+      console.log(user_data, isAuthenticated);
+      console.log("Dashboard Mounted");
+      useEffect(() => {
+        if (!user_data) {
+          console.log("User not logged in");
+          // return;
+        }});
+  
   const bubbles = [
     {
       size: "w-72 h-72",
@@ -124,7 +137,7 @@ const ProjectForm = () => {
     try {
       console.log(data);
       if (isEdit) await updateProject(id, data);
-      else await createProject(data);
+      else await createProject(data,user_data.email);
       // navigate("/dashboard");
     } catch (err) {
       console.error(err);
