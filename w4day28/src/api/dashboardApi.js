@@ -85,15 +85,26 @@ export const createProject = async (payload, email) => {
   }
 };
 
-export const addProject = (payload) => {
-  fetchWithAuth("/user/addProject", "POST", payload);
+export const addProject = async(payload) => {
+  await fetchWithAuth("/user/addProject", "POST", payload);
 };
 
-export const updateProject = (id, payload) =>
-  fetchWithAuth(`/user/updateProject/${id}`, "PUT", payload);
+export const updateProject = async (email,id, payload) =>
+  await fetchWithAuth(`/user/updateProject/${email}/${id}`, "PUT", payload);
 
-export const deleteUserProject = (id) =>
-  fetchWithAuth(`/user/deleteProject/${id}`, "DELETE");
+export const deleteUserProject = async(email,project_id) =>
+  await fetchWithAuth(`/user/deleteProject/${project_id}/${email}`, "DELETE");
 
-export const getSingleProject = (id) =>
-  fetchWithAuth(`/user/project/${id}`, "GET");
+export const getSingleProject = async(email,id) =>{
+  try{
+    console.log("API getSingleProject called with:", email, id);
+    const data=await fetchWithAuth(`/user/project/${email}/${id}`, "GET");
+    console.log("API getSingleProject data:", data);
+    return data.project;
+  }
+  catch(error){
+    console.log(error);
+    return { message: "Network error" };
+  }
+
+}

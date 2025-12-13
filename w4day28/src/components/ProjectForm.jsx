@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import fileToBase64 from "../utils/fileToBase64";
+
+import toast from "react-hot-toast"; // to use toast we import it
+
 import {
   getSingleProject,
   createProject,
@@ -9,18 +13,24 @@ import {
 import { useSelector } from "react-redux"; // Impo
 
 const ProjectForm = () => {
-    const { isAuthenticated, user, user_data } = useSelector(
-      (state) => state.auth
-    );
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  console.log("Backend URL:", BACKEND_URL);
 
-      console.log(user_data, isAuthenticated);
-      console.log("Dashboard Mounted");
-      useEffect(() => {
-        if (!user_data) {
-          console.log("User not logged in");
-          // return;
-        }});
-  
+  // ...rest of your component
+
+  const { isAuthenticated, user, user_data } = useSelector(
+    (state) => state.auth
+  );
+
+  console.log(user_data, isAuthenticated);
+  console.log("Dashboard Mounted");
+  useEffect(() => {
+    if (!user_data) {
+      console.log("User not logged in");
+      // return;
+    }
+  });
+
   const bubbles = [
     {
       size: "w-72 h-72",
@@ -64,7 +74,7 @@ const ProjectForm = () => {
       name: "",
       summary: "",
       startDate: "",
-      endDate:"",
+      endDate: "",
       technologies: [],
       languages: [],
       databases: [],
@@ -80,12 +90,7 @@ const ProjectForm = () => {
 
   const validateStep = async () => {
     if (step === 1) {
-      return await trigger([
-        "name",
-        "summary",
-        "startDate",
-        "endDate",
-      ]);
+      return await trigger(["name", "summary", "startDate", "endDate"]);
     }
     if (step === 2) {
       return await trigger([
@@ -115,8 +120,42 @@ const ProjectForm = () => {
 
   async function loadProject() {
     setLoading(true);
-    const data = await getSingleProject(id);
-    Object.keys(data).forEach((key) => setValue(key, data[key]));
+
+    const res = await getSingleProject(user_data.email, id);
+    console.log(res);
+
+    if (res) {
+      const project = res;
+
+      // Set direct fields
+      setValue("name", project.name);
+      setValue("summary", project.summary);
+
+      // 🔥 FIX: Map duration → startDate / endDate
+      if (project.duration) {
+        setValue("startDate", project.duration.from || "");
+        setValue("endDate", project.duration.to || "");
+      }
+
+      // Arrays
+      setValue("technologies", project.technologies || []);
+      setValue("languages", project.languages || []);
+      setValue("databases", project.databases || []);
+      // setValue("images", project.images || []);
+
+      // ⚠️ DO NOT prefill images
+      setValue("images", []);
+      setImagePreviews([]);
+
+      // Links
+      setValue("github", project.github || "");
+      setValue("liveURL", project.liveURL || "");
+      setValue("linkedIn", project.linkedIn || "");
+
+      // Type
+      setValue("type", project.type || "");
+    }
+
     setLoading(false);
   }
 
@@ -132,15 +171,67 @@ const ProjectForm = () => {
     if (!isValid) return; // React Hook Form will show errors automatically
     setStep((prev) => Math.min(prev + 1, 3));
   };
-
   const onSubmit = async (data) => {
     try {
-      console.log(data);
-      if (isEdit) await updateProject(id, data);
-      else await createProject(data,user_data.email);
-      // navigate("/dashboard");
+      console.log("Form data received:", data);
+
+      // Separate new files from existing URLs
+      const newFiles = data.images.filter((img) => img instanceof File);
+      const existingImages = data.images.filter(
+        (img) => typeof img === "string"
+      );
+
+      console.log("New files:", newFiles);
+      console.log("Existing images (URLs):", existingImages);
+
+      const base64NewFiles = [];
+
+      // Convert new files to base64
+      for (const file of newFiles) {
+        const base64 = await fileToBase64(file);
+        base64NewFiles.push(base64);
+        console.log(`Converted ${file.name} to base64`);
+      }
+      // Build payload
+      const payload = { ...data };
+
+      // Only send images if user added new files
+      if (base64NewFiles.length > 0) {
+        payload.images = base64NewFiles;
+        toast.success("Images added ✅");
+      } else {
+        delete payload.images; // backend will ignore this field
+      }
+        console.log("FINAL PAYLOAD SENT TO BACKEND:", payload);
+
+      if (base64NewFiles.length > 0) {
+        // Replace images if new files were uploaded
+        payload.images = base64NewFiles;
+        console.log("Replacing old images with new ones:", payload.images);
+      } else if (existingImages.length > 0) {
+        // Keep existing images as-is
+        payload.images = existingImages;
+        console.log("Keeping existing images:", payload.images);
+      } else {
+        // No images at all
+      delete payload.images; // do not send empty array
+        console.log("No images provided.");
+      }
+
+      console.log("FINAL PAYLOAD SENT TO BACKEND:", payload);
+
+      if (isEdit) {
+        await updateProject(user_data.email, id, payload);
+        toast.success("Project Updated Successfully ✅");
+      } else {
+        await createProject(payload, user_data.email);
+        toast.success("Project Created Successfully ✅");
+      }
+
+      navigate("/dashboard");
     } catch (err) {
-      console.error(err);
+      console.error("Error in onSubmit:", err);
+      toast.error("Something went wrong while submitting the project ❌");
     }
   };
 
@@ -263,7 +354,7 @@ const ProjectForm = () => {
                   type="date"
                   className="p-2 rounded bg-[var(--color-primary)]"
                   {...register("startDate", {
-                    required: "Start date is required"
+                    required: "Start date is required",
                   })}
                 />
               </div>
@@ -299,8 +390,8 @@ const ProjectForm = () => {
               type="text"
               placeholder="Technologies (comma separated)"
               className="p-2 rounded-md bg-[var(--color-primary)] text-[var(--color-text)]"
-              {...register("technologies",{
-                    required: "Technologie is required",
+              {...register("technologies", {
+                required: "Technologie is required",
                 setValueAs: (v) =>
                   typeof v === "string" ? v.split(",").map((t) => t.trim()) : v,
               })}
@@ -310,8 +401,8 @@ const ProjectForm = () => {
               type="text"
               placeholder="Languages (comma separated)"
               className="p-2 rounded-md bg-[var(--color-primary)] text-[var(--color-text)]"
-              {...register("languages",{
-                    required: "Language is required",
+              {...register("languages", {
+                required: "Language is required",
                 setValueAs: (v) =>
                   typeof v === "string" ? v.split(",").map((l) => l.trim()) : v,
               })}
@@ -321,8 +412,8 @@ const ProjectForm = () => {
               type="text"
               placeholder="Databases (comma separated)"
               className="p-2 rounded-md bg-[var(--color-primary)] text-[var(--color-text)]"
-              {...register("databases",{
-                    required: "Database is required",
+              {...register("databases", {
+                required: "Database is required",
                 setValueAs: (v) =>
                   typeof v === "string" ? v.split(",").map((d) => d.trim()) : v,
               })}
@@ -415,8 +506,9 @@ const ProjectForm = () => {
 
             <select
               className="p-2 rounded-md bg-[var(--color-primary)] text-[var(--color-text)]"
-              {...register("type",{
-                    required: "Project Type is required"})}
+              {...register("type", {
+                required: "Project Type is required",
+              })}
             >
               <option value="">Select Project Type</option>
               <option value="personal">Personal</option>

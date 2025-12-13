@@ -1,11 +1,13 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { getUserInfo, getUserProjects,getUserTemplates ,getUserStats} from "../api/dashboardApi"; //To update data (dispatch login/logout):
+import { getUserInfo, getUserProjects,getUserTemplates ,getUserStats,deleteUserProject, addProject} from "../api/dashboardApi"; //To update data (dispatch login/logout):
 import { useSelector } from "react-redux"; // Impo
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast"; // to use toast we import it
 
 
 const Dashboard = () => {
+  const BACKEND_URL = "http://localhost:8000";
   const { isAuthenticated, user, user_data } = useSelector(
     (state) => state.auth
   );
@@ -47,16 +49,35 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (project_id) => {
     if (!window.confirm("Delete this project?")) return;
 
     try {
-      await deleteUserProject(id);
-      setUserProject(userProjects.filter(p => p.project_id !== id));
+      console.log("Deleting project with ID:", project_id);
+      await deleteUserProject(user_data.email,project_id);
+      setUserProject(userProjects.filter(p => p.project_id !== project_id));
+      toast.success("Project Deleted Successful ✅");
     } catch (err) {
       console.error(err);
+      toast.error("Error deleting project ❌");
     }
     };
+
+    const addProject = () => {
+      try {
+        console.log("Navigating to add new project");
+        if (userProjects.length < 5) {
+          toast.success("Add New Project ✅");
+          navigate("/project/new")
+        }
+        else {
+          toast.error(`Cannot add more projects ❌  (Max 5 projects allowed, you have ${userProjects.length})`);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+    }
 
 
 
@@ -155,7 +176,7 @@ const Dashboard = () => {
             </h2>
 
             <button
-              onClick={() => navigate("/project/new")}
+              onClick={() => addProject()}
               className="px-4 py-2 bg-[var(--color-active)] rounded-lg text-[var(--color-primary)] hover:opacity-80"
             >
               + Add Project
@@ -226,13 +247,14 @@ const Dashboard = () => {
                 ))}
               </div>
               <p className="text-sm text-[var(--color-text)] mt-2">
-                Duration: {project.duration.from} - {project.duration.from}
+                Duration: {project.duration.from} - {project.duration.to}
               </p>
               <div className="flex gap-2 mt-2 overflow-x-auto">
                 {project.images.map((img, i) => (
                   <img
                     key={i}
-                    src={img}
+                    // src={img}
+                    src={`${BACKEND_URL}/${img}`}
                     alt={`Project ${idx} Image ${i}`}
                     className="w-24 h-24 object-cover rounded-lg"
                   />

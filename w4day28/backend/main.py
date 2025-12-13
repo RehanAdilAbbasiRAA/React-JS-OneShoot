@@ -10,13 +10,24 @@ from bson.objectid import ObjectId
 from hash_password import hash_password
 from fastapi import Request
 from datetime import datetime
-
+import uuid
+import base64
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 app = FastAPI()
+
+UPLOAD_DIR = Path("uploads/projects")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# Means:
+# /uploads/projects/xyz.png becomes accessible via browser
+# React can directly load images
 
 # Allow frontend (React) requests
 app.add_middleware(
@@ -69,7 +80,6 @@ async def login(email: str, password: str):
 #     new_access_token = create_access_token({"sub": email})
 #     return {"access_token": new_access_token}
 
-from pydantic import BaseModel
 
 class RefreshRequest(BaseModel):
     refresh_token: str
@@ -307,7 +317,8 @@ async def add_project(request: Request):
     project = {}
 
     # Required fields
-    project["project_id"] = ObjectId()  # generate unique id
+    project["project_id"] = str(uuid.uuid4())
+    # project["project_id"] = ObjectId()  # generate unique id
     project["name"] = data.get("name", "")
     project["summary"] = data.get("summary", "")
 
@@ -336,6 +347,21 @@ async def add_project(request: Request):
     # Images
     project["images"] = data.get("images", [])
 
+    # Inside add_project, after project["images"] = data.get("images", []) loop for images to store them in path we used at top
+    images = data.get("images", [])
+    print("IMAGES TYPE:", type(images))
+    print("IMAGES LENGTH:", len(images))
+    saved_files = []
+
+    for img in images:
+        # print("Processing image:", img)
+        try:
+            saved_files.append(save_image_from_base64(img))
+        except Exception as e:
+            print("Failed to save image:", e)
+
+    project["images"] = saved_files
+
     # Links and type
     project["github"] = data.get("github", "")
     project["liveURL"] = data.get("liveURL", "")
@@ -352,3 +378,175 @@ async def add_project(request: Request):
     )
 
     return {"message": "Project added successfully"}
+
+@app.put("/user/updateProject/{email}/{project_id}")
+async def update_project(email: str, project_id: str, request: Request):
+    payload = await request.json()
+
+    # Prepare update fields for $set
+    update_fields = {}
+
+    for key, value in payload.items():
+        if key == "startDate" or key == "endDate":
+            start_date = payload.get("startDate")
+            end_date = payload.get("endDate")
+
+            if start_date and end_date:
+                start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+                end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+
+                if start_dt > end_dt:
+                    raise HTTPException(status_code=400, detail="Start date cannot be after end date")
+
+                update_fields["projects.$.duration"] = {
+                    "from": start_date,
+                    "to": end_date
+                }
+
+            continue
+
+        if key == "languages":
+            if isinstance(value, str):
+                value = [x.strip() for x in value.split(",") if x.strip()]
+            update_fields["projects.$.languages"] = value
+            continue
+        images = payload.get("images", [])
+        print("IMAGES TYPE:", type(images))
+        print("IMAGES LENGTH:", len(images))
+        # Inside the loop of payload items
+        if key == "images":
+            saved_files = []
+            print("Updating images...") 
+            for img in value:
+                # print("Processing image:", img)
+                try:
+                    saved_files.append(save_image_from_base64(img))
+                except Exception as e:
+                    print("Failed to save image:", e)
+            update_fields["projects.$.images"] = saved_files
+            continue
+
+
+        # normal fields go directly inside the project
+        update_fields[f"projects.$.{key}"] = value
+
+    # Execute update using positional operator
+    result = await USER_COLLECTION.update_one(
+        {
+            "email": email,
+            "projects.project_id": project_id
+        },
+        {
+            "$set": update_fields
+        }
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Project not found or wrong project ID")
+
+    return {"message": "Project updated successfully"}
+
+def save_image_from_base64(base64_str: str) -> str:
+    """
+    Save base64 image to UPLOAD_DIR and return file path.
+    """
+    if "," in base64_str:
+        header, base64_data = base64_str.split(",", 1)
+    else:
+        base64_data = base64_str
+    file_ext = header.split("/")[1].split(";")[0] if 'header' in locals() else "png"
+    filename = f"{uuid.uuid4()}.{file_ext}"
+    file_path = UPLOAD_DIR / filename
+    with open(file_path, "wb") as f:
+        f.write(base64.b64decode(base64_data))
+    return str(file_path)
+
+
+@app.delete("/user/deleteProject/{project_id}/{email}")
+async def delete_user_project(email: str, project_id: str):
+    print(email, project_id)
+    # first find the user and then project using want to delete but also delete the images from uploads folder
+    user = await USER_COLLECTION.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    projects = user.get("projects", [])
+
+    project = next(
+        (p for p in projects if p.get("project_id") == project_id),
+        None
+    )
+
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    user = await USER_COLLECTION.find_one(
+        {"email": email},
+        {"projects": {"$elemMatch": {"project_id": project_id}}}
+    )
+    # Get images to delete from uploads folder
+    images = project.get("images", [])
+    print("Images stored in DB:", images)
+
+    
+    BASE_UPLOAD_DIR = UPLOAD_DIR.resolve()  # use the same directory you already have
+
+    for img in images:
+        try:
+            if not isinstance(img, str):
+                continue
+
+            # Normalize Windows / Unix paths safely
+            file_path = Path(img).resolve()
+
+            print("Resolved file path:", file_path)
+
+            # Safety check: only delete inside uploads/projects
+            if BASE_UPLOAD_DIR not in file_path.parents and file_path != BASE_UPLOAD_DIR:
+                print("Skipping non-upload file:", file_path)
+                continue
+
+            if file_path.exists():
+                file_path.unlink()
+                print("Deleted image:", file_path)
+            else:
+                print("File not found:", file_path)
+
+        except Exception as e:
+            print("Failed to delete image:", img, e)
+
+    # Now remove project from user's projects array
+    result = await USER_COLLECTION.update_one(
+        {"email": email},
+        {"$pull": {"projects": {"project_id": project_id}}}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {"sucess":True,"message": "Project deleted successfully"}
+
+@app.get("/user/project/{email}/{project_id}")
+async def get_user_project(email: str, project_id: str):
+    print("PROJECT    ?????",email, project_id)
+    user = await USER_COLLECTION.find_one(
+        {"email": email, "projects.project_id": project_id})
+    
+    if not user or "projects" not in user:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    user = serialize_doc(user)
+    print("USER DATA:", user)
+    projects= user.get("projects", [])
+    project = next(
+        (p for p in projects if p.get("project_id") == project_id),
+        None
+    )
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    return {
+        "success": True,
+        "message": "Project fetched successfully",
+        "project": project
+    }
