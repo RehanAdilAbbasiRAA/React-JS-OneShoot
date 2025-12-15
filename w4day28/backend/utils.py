@@ -19,3 +19,5 @@ def serialize_doc(doc):
         return [serialize_doc(item) for item in doc]
     else:
         return doc
+
+

@@ -382,6 +382,26 @@ async def add_project(request: Request):
 @app.put("/user/updateProject/{email}/{project_id}")
 async def update_project(email: str, project_id: str, request: Request):
     payload = await request.json()
+    existing_images = []
+
+    if "images" in payload:
+        user = await USER_COLLECTION.find_one(
+            {"email": email},
+            {"projects": {"$elemMatch": {"project_id": project_id}}}
+        )
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        project = user["projects"][0]
+        existing_images = project.get("images", [])
+
+        if existing_images:
+            data=await delete_previous_images(existing_images)
+            if data.get("success"):
+                print("Previous images cleared from DB. 👿👿")
+            else:
+                print("No previous images to clear or error occurred. 👿👿")
 
     # Prepare update fields for $set
     update_fields = {}
@@ -410,9 +430,10 @@ async def update_project(email: str, project_id: str, request: Request):
                 value = [x.strip() for x in value.split(",") if x.strip()]
             update_fields["projects.$.languages"] = value
             continue
-        images = payload.get("images", [])
-        print("IMAGES TYPE:", type(images))
-        print("IMAGES LENGTH:", len(images))
+        # images = payload.get("images", [])
+        # print("IMAGES TYPE:", type(images))
+        # print("IMAGES LENGTH:", len(images))
+
         # Inside the loop of payload items
         if key == "images":
             saved_files = []
@@ -466,7 +487,11 @@ def save_image_from_base64(base64_str: str) -> str:
 async def delete_user_project(email: str, project_id: str):
     print(email, project_id)
     # first find the user and then project using want to delete but also delete the images from uploads folder
-    user = await USER_COLLECTION.find_one({"email": email})
+    user = await USER_COLLECTION.find_one(
+        {"email": email},
+        {"projects": {"$elemMatch": {"project_id": project_id}}}
+    )
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -480,40 +505,10 @@ async def delete_user_project(email: str, project_id: str):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    user = await USER_COLLECTION.find_one(
-        {"email": email},
-        {"projects": {"$elemMatch": {"project_id": project_id}}}
-    )
     # Get images to delete from uploads folder
     images = project.get("images", [])
     print("Images stored in DB:", images)
-
-    
-    BASE_UPLOAD_DIR = UPLOAD_DIR.resolve()  # use the same directory you already have
-
-    for img in images:
-        try:
-            if not isinstance(img, str):
-                continue
-
-            # Normalize Windows / Unix paths safely
-            file_path = Path(img).resolve()
-
-            print("Resolved file path:", file_path)
-
-            # Safety check: only delete inside uploads/projects
-            if BASE_UPLOAD_DIR not in file_path.parents and file_path != BASE_UPLOAD_DIR:
-                print("Skipping non-upload file:", file_path)
-                continue
-
-            if file_path.exists():
-                file_path.unlink()
-                print("Deleted image:", file_path)
-            else:
-                print("File not found:", file_path)
-
-        except Exception as e:
-            print("Failed to delete image:", img, e)
+    await delete_previous_images(images)
 
     # Now remove project from user's projects array
     result = await USER_COLLECTION.update_one(
@@ -550,3 +545,36 @@ async def get_user_project(email: str, project_id: str):
         "message": "Project fetched successfully",
         "project": project
     }
+
+
+
+
+async def delete_previous_images(images: list):
+
+    BASE_UPLOAD_DIR = UPLOAD_DIR.resolve()  # use the same directory you already have
+
+    for img in images:
+        try:
+            if not isinstance(img, str):
+                continue
+
+            # Normalize Windows / Unix paths safely
+            file_path = Path(img).resolve()
+
+            print("Resolved file path:", file_path)
+
+            # Safety check: only delete inside uploads/projects
+            if BASE_UPLOAD_DIR not in file_path.parents and file_path != BASE_UPLOAD_DIR:
+                print("Skipping non-upload file:", file_path)
+                continue
+
+            if file_path.exists():
+                file_path.unlink()
+                print("Deleted image:", file_path)
+            else:
+                print("File not found:", file_path)
+
+        except Exception as e:
+            print("Failed to delete image:", img, e)
+
+    return {"success":True,"message": "Images cleared successfully"}
