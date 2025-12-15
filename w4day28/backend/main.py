@@ -101,7 +101,8 @@ async def protected_route(current_user: dict = Depends(get_current_user)):
 
 @app.get("/user/profile/{user_id}")
 async def get_setting(user_id: str,token: str = Depends(get_current_user)):
-    print(user_id)
+    # print(user_id)
+    print("User Hit Profile Endpoint✅✅✅")
     user_id=ObjectId(user_id)
     user=await USER_COLLECTION.find_one({"_id": user_id})
     if not user:
@@ -206,6 +207,7 @@ async def register_user(email: str, password: str, name: str, sex: str):
 
 @app.get("/getuserInfo/{email}")
 async def get_user_info(email: str):
+    print("User Hit Get User Info Endpoint✅✅✅")
     user = await USER_COLLECTION.find_one({"email": email})
     if not user:
         return {"message": "User not found"}
@@ -223,11 +225,12 @@ async def get_user_info(email: str):
 
 @app.get("/getUserProjects/{email}")
 async def get_user_projects(email: str):
+    print("User Hit Get Projects Endpoint✅✅✅")
     user = await USER_COLLECTION.find_one({"email": email})
     if not user:
         return {"message": "User not found"}
     user_doc= serialize_doc(user)
-    print(f"User Projects fetched for {email} ✅✅✅ {len(user_doc["projects"])}")
+    # print(f"User Projects fetched for {email} ✅✅✅ {len(user_doc["projects"])}")
     data=user_doc["projects"]
     # print(data,"Data we get")
     return data
@@ -236,12 +239,13 @@ async def get_user_projects(email: str):
 
 @app.get("/getUserTemplates/{email}")
 async def get_user_templates(email: str):
+    print("User Hit Get User Templates Endpoint✅✅✅")
     user = await USER_COLLECTION.find_one({"email": email})
     if not user:
         return {"message": "User not found"}
     user_doc = serialize_doc(user)
     template_ids = user_doc.get("stats", {}).get("templates_clipped", [])
-    print("User clipped templates:", template_ids)
+    # print("User clipped templates:", template_ids)
 
     # Convert to ObjectId
     object_ids = [ObjectId(tid) for tid in template_ids]
@@ -267,6 +271,7 @@ async def get_user_templates(email: str):
 
 @app.get("/getUserStats/{email}")
 async def get_user_stats(email: str):
+    print("User Hit Get User Stats Endpoint✅✅✅")
     user = await USER_COLLECTION.find_one({"email": email})
     if not user:
         return {"message": "User not found"}
@@ -485,7 +490,8 @@ def save_image_from_base64(base64_str: str) -> str:
 
 @app.delete("/user/deleteProject/{project_id}/{email}")
 async def delete_user_project(email: str, project_id: str):
-    print(email, project_id)
+    # print(email, project_id)
+    print("User Hit Delete Project Endpoint✅✅✅")
     # first find the user and then project using want to delete but also delete the images from uploads folder
     user = await USER_COLLECTION.find_one(
         {"email": email},

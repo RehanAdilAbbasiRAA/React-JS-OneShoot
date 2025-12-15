@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import fileToBase64 from "../utils/fileToBase64";
-
 import toast from "react-hot-toast"; // to use toast we import it
+//  Invalidate Cache in ProjectForm
+import { useQueryClient } from "@tanstack/react-query"; // ✅ Import this!
 
 import {
   getSingleProject,
@@ -15,7 +16,7 @@ import { useSelector } from "react-redux"; // Impo
 const ProjectForm = () => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   console.log("Backend URL:", BACKEND_URL);
-
+  const queryClient = useQueryClient(); // ✅ Get queryClient instance
   // ...rest of your component
 
   const { isAuthenticated, user, user_data } = useSelector(
@@ -227,6 +228,18 @@ const ProjectForm = () => {
         await createProject(payload, user_data.email);
         toast.success("Project Created Successfully ✅");
       }
+
+            // ✅ CRITICAL: Invalidate cache to fetch fresh data
+      await queryClient.invalidateQueries({
+        queryKey: ["userProjects", user_data?.email],
+          refetchType: "all",
+      });
+      
+      // ✅ Also invalidate stats (project count changed)
+      await queryClient.invalidateQueries({
+        queryKey: ["userStats", user_data?.email],
+          refetchType: "all",
+      });
 
       navigate("/dashboard");
     } catch (err) {

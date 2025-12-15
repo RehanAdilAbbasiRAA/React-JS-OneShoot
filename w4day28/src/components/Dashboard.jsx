@@ -1,90 +1,99 @@
 import React from "react";
-import { useEffect, useState } from "react";
-import { getUserInfo, getUserProjects,getUserTemplates ,getUserStats,deleteUserProject, addProject} from "../api/dashboardApi"; //To update data (dispatch login/logout):
+import {
+  getUserInfo,
+  getUserProjects,
+  getUserTemplates,
+  getUserStats,
+  deleteUserProject,
+} from "../api/dashboardApi"; //To update data (dispatch login/logout):
 import { useSelector } from "react-redux"; // Impo
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast"; // to use toast we import it
-
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const BACKEND_URL = "http://localhost:8000";
-  const { isAuthenticated, user, user_data } = useSelector(
-    (state) => state.auth
-  );
+  const { user_data } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState(null);
-  const [userProjects, setUserProject] = useState([]);
-  const [userTemplates, setUserTemplates] = useState([])
-  const [userStats, setUserStats] = useState([])
-  const [loading, setLoading] = useState(true);
-  console.log(user_data, isAuthenticated);
-  console.log("Dashboard Mounted");
-  useEffect(() => {
-    if (!user_data) {
-      console.log("User not logged in");
-      return;
-    }
+  const queryClient = useQueryClient();
 
-    console.log("getting Dashboard data");
-    async function fetchData() {
-      try {
-        const info = await getUserInfo(user_data.email);
-        setUserInfo(info);
+  // ✅ Fetch user info with caching
+  const { data: userInfo, isLoading: infoLoading } = useQuery({    //👉 You are subscribing to cached data.
+    queryKey: ["userInfo", user_data?.email], //👉 This is the cache identity.    // Different user → different cache  >>  Same user → reused cache
+    queryFn: () => getUserInfo(user_data.email),  //👉 Called only when needed, not on every render.
+    enabled: !!user_data?.email, // Only run if email exists 👉 Prevents API call until email exists
+  });
 
-        const projects = await getUserProjects(user_data.email);
-        setUserProject(projects);
+  // ✅ Fetch projects with caching
+  const { data: userProjects = [], isLoading: projectsLoading } = useQuery({
+    queryKey: ["userProjects", user_data?.email],
+    queryFn: () => getUserProjects(user_data.email),
+    enabled: !!user_data?.email,
+  });
 
-        const templates = await getUserTemplates(user_data.email);
-        setUserTemplates(templates);
+  // ✅ Fetch templates with caching
+  const { data: userTemplates = [], isLoading: templatesLoading } = useQuery({
+    queryKey: ["userTemplates", user_data?.email],
+    queryFn: () => getUserTemplates(user_data.email),
+    enabled: !!user_data?.email,
+  });
 
-        const stats = await getUserStats(user_data.email);
-        setUserStats(stats);
+  // ✅ Fetch stats with caching
+  const { data: userStats, isLoading: statsLoading } = useQuery({
+    queryKey: ["userStats", user_data?.email],
+    queryFn: () => getUserStats(user_data.email),
+    enabled: !!user_data?.email,
+  });
 
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-    const handleDelete = async (project_id) => {
-    if (!window.confirm("Delete this project?")) return;
-
-    try {
-      console.log("Deleting project with ID:", project_id);
-      await deleteUserProject(user_data.email,project_id);
-      setUserProject(userProjects.filter(p => p.project_id !== project_id));
-      toast.success("Project Deleted Successful ✅");
-    } catch (err) {
+  // ✅ Delete mutation with automatic cache update
+  const deleteMutation = useMutation({  //👉 Mutations are write operations.
+    mutationFn: (project_id) => deleteUserProject(user_data.email, project_id),  //👉 Only job: hit backend
+    onSuccess: (data, project_id) => {
+      // ✅ Update cache without refetching API
+      queryClient.setQueryData(["userProjects", user_data?.email], (old) =>
+        old.filter((p) => p.project_id !== project_id)
+      );
+      // ✅ Also invalidate stats to refetch updated count
+      queryClient.invalidateQueries(["userStats", user_data?.email]);
+      toast.success("Project Deleted Successfully ✅");
+    },
+    onError: (err) => {
       console.error(err);
       toast.error("Error deleting project ❌");
-    }
-    };
+    },
+  });
 
-    const addProject = () => {
-      try {
-        console.log("Navigating to add new project");
-        if (userProjects.length < 5) {
-          toast.success("Add New Project ✅");
-          navigate("/project/new")
-        }
-        else {
-          toast.error(`Cannot add more projects ❌  (Max 5 projects allowed, you have ${userProjects.length})`);
-        }
-      } catch (err) {
-        console.error(err);
+  const handleDelete = async (project_id) => {
+    if (!window.confirm("Delete this project?")) return;
+    deleteMutation.mutate(project_id);
+  };
+
+  const addProject = () => {
+    try {
+      if (userProjects.length < 5) {
+        toast.success("Add New Project ✅");
+        navigate("/project/new");
+      } else {
+        toast.error(
+          `Cannot add more projects ❌ (Max 5 projects allowed, you have ${userProjects.length})`
+        );
       }
-
+    } catch (err) {
+      console.error(err);
     }
+  };
 
+  // ✅ Combined loading check
+  const loading =
+    infoLoading || projectsLoading || templatesLoading || statsLoading;
 
+  if (!user_data) {
+    return <div>Please log in to view dashboard</div>;
+  }
 
   if (loading) {
     return <div>Loading...</div>;
   }
-
 
   return (
     <div className="p-6 flex flex-col gap-10 max-w-7xl mx-auto">
@@ -170,18 +179,17 @@ const Dashboard = () => {
 
       {/* === Bottom Section: Projects === */}
       <div className="flex flex-col gap-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-[var(--color-text)]">
-              Your Projects
-            </h2>
-
-            <button
-              onClick={() => addProject()}
-              className="px-4 py-2 bg-[var(--color-active)] rounded-lg text-[var(--color-primary)] hover:opacity-80"
-            >
-              + Add Project
-            </button>
-          </div>
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-[var(--color-text)]">
+            Your Projects
+          </h2>
+          <button
+            onClick={() => addProject()}
+            className="px-4 py-2 bg-[var(--color-active)] rounded-lg text-[var(--color-primary)] hover:opacity-80"
+          >
+            + Add Project
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {userProjects.map((project, idx) => (
@@ -189,30 +197,30 @@ const Dashboard = () => {
               key={project.project_id}
               className="bg-[var(--color-card)] rounded-lg shadow-md hover:shadow-xl transition duration-300 p-4"
             >
-
-          {/* Actions */}
-          <div className="flex justify-end gap-3 mt-4">
-            <button
-              onClick={() => navigate(`/project/edit/${project.project_id}`)}
-              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Edit
-            </button>
-
-            <button
-              onClick={() => handleDelete(project.project_id)}
-              className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
-            >
-              Delete
-            </button>
-          </div>
+              {/* Actions */}
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() =>
+                    navigate(`/project/edit/${project.project_id}`)
+                  }
+                  className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(project.project_id)}
+                  className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  disabled={deleteMutation.isPending}
+                >
+                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                </button>
+              </div>
 
               <h3 className="text-xl font-semibold text-[var(--color-text)]">
                 {project.name}
               </h3>
-              <p className="text-[var(--color-text)] mt-2">
-                {project.summary}
-              </p>
+              <p className="text-[var(--color-text)] mt-2">{project.summary}</p>
+
               {/* Languages */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {project.languages.map((skill) => (
@@ -224,6 +232,7 @@ const Dashboard = () => {
                   </span>
                 ))}
               </div>
+
               {/* Technologies */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {project.technologies.map((tech) => (
@@ -235,6 +244,7 @@ const Dashboard = () => {
                   </span>
                 ))}
               </div>
+
               {/* Database */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {project.databases.map((tech) => (
@@ -246,14 +256,15 @@ const Dashboard = () => {
                   </span>
                 ))}
               </div>
+
               <p className="text-sm text-[var(--color-text)] mt-2">
                 Duration: {project.duration.from} - {project.duration.to}
               </p>
+
               <div className="flex gap-2 mt-2 overflow-x-auto">
                 {project.images.map((img, i) => (
                   <img
                     key={i}
-                    // src={img}
                     src={`${BACKEND_URL}/${img}`}
                     alt={`Project ${idx} Image ${i}`}
                     className="w-24 h-24 object-cover rounded-lg"
@@ -284,41 +295,50 @@ export default Dashboard;
 //   },
 // };
 
-  // Hard-coded projects
-  // const projects = [
-  //   {
-  //     title: "Project One",
-  //     description: "An amazing web app that showcases dynamic data and modern UI components.",
-  //     skills: ["React", "Tailwind", "Node.js"],
-  //     technologies: ["JavaScript", "MongoDB", "Express"],
-  //     startDate: "2023-01",
-  //     endDate: "2023-03",
-  //     images: ["/project1-1.png", "/project1-2.png"],
-  //   },
-  //   {
-  //     title: "Project Two",
-  //     description: "A portfolio management system for creatives to track their templates and projects.",
-  //     skills: ["React", "Next.js", "Redux"],
-  //     technologies: ["TypeScript", "Firebase", "CSS Modules"],
-  //     startDate: "2023-04",
-  //     endDate: "2023-06",
-  //     images: ["/project2-1.png", "/project2-2.png"],
-  //   },
-  //   {
-  //     title: "Project Three",
-  //     description: "A modern dashboard for tracking templates, analytics, and user interactions.",
-  //     skills: ["React", "Tailwind", "Chart.js"],
-  //     technologies: ["JavaScript", "Node.js", "Express"],
-  //     startDate: "2023-07",
-  //     endDate: "2023-09",
-  //     images: ["/project3-1.png", "/project3-2.png"],
-  //   },
-  // ];
+// Hard-coded projects
+// const projects = [
+//   {
+//     title: "Project One",
+//     description: "An amazing web app that showcases dynamic data and modern UI components.",
+//     skills: ["React", "Tailwind", "Node.js"],
+//     technologies: ["JavaScript", "MongoDB", "Express"],
+//     startDate: "2023-01",
+//     endDate: "2023-03",
+//     images: ["/project1-1.png", "/project1-2.png"],
+//   },
+//   {
+//     title: "Project Two",
+//     description: "A portfolio management system for creatives to track their templates and projects.",
+//     skills: ["React", "Next.js", "Redux"],
+//     technologies: ["TypeScript", "Firebase", "CSS Modules"],
+//     startDate: "2023-04",
+//     endDate: "2023-06",
+//     images: ["/project2-1.png", "/project2-2.png"],
+//   },
+//   {
+//     title: "Project Three",
+//     description: "A modern dashboard for tracking templates, analytics, and user interactions.",
+//     skills: ["React", "Tailwind", "Chart.js"],
+//     technologies: ["JavaScript", "Node.js", "Express"],
+//     startDate: "2023-07",
+//     endDate: "2023-09",
+//     images: ["/project3-1.png", "/project3-2.png"],
+//   },
+// ];
 
-    // Hard-coded templates
-  // const templates = [
-  //   { id: 1, name: "Portfolio One", views: 120, img: "/template1.png" },
-  //   { id: 2, name: "Portfolio Two", views: 80, img: "/template2.png" },
-  //   { id: 3, name: "Portfolio Three", views: 200, img: "/template3.png" },
-  //   { id: 4, name: "Portfolio Four", views: 50, img: "/template4.png" },
-  // ];
+// Hard-coded templates
+// const templates = [
+//   { id: 1, name: "Portfolio One", views: 120, img: "/template1.png" },
+//   { id: 2, name: "Portfolio Two", views: 80, img: "/template2.png" },
+//   { id: 3, name: "Portfolio Three", views: 200, img: "/template3.png" },
+//   { id: 4, name: "Portfolio Four", views: 50, img: "/template4.png" },
+// ];
+
+
+// 6️⃣ Final mental model (remember this)
+// useQuery → Read
+// useMutation → Write
+// queryKey → Cache identity
+// setQueryData → Optimistic UI
+// invalidateQueries → Controlled refetch
+// staleTime → Refetch shield

@@ -8,8 +8,12 @@ import { logout } from "../features/authSlice";
 import { useNavigate } from "react-router-dom";
 
 import toast from "react-hot-toast"; // to use toast we import its
+import {  useQueryClient } from "@tanstack/react-query";
+
+
 
 const Navbar = () => {
+  const queryClient = useQueryClient();
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -42,6 +46,7 @@ const Navbar = () => {
   const handleLogout = () => {
     dispatch(logout());
     toast.success("Logout Successful ✅");
+    queryClient.clear();
     navigate("/");
   };
 
