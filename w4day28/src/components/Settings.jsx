@@ -108,9 +108,10 @@ const Settings = () => {
     // Function that calls the API
     mutationFn: (payload) => setUserProfile(user_data.user_id, payload),
     
-    // What to do when API call succeeds - FIXED
+    // What to do when API call succeeds - FIXED we get the setuser data response and store it here
     onSuccess: (updatedData) => {
       toast.success("✅ Profile updated successfully!");
+      console.log("Profile updated successfully:", updatedData);
       
       // Update cache with new data
       queryClient.setQueryData(["userDetails", user_data?.user_id], updatedData);
