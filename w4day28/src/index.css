@@ -196,3 +196,38 @@ main {
   border-color: var(--color-border);
   transition: background 0.4s ease, color 0.3s ease;
 }
+
+
+
+/* ===== Voice / Wave Loader ===== */
+
+.voice-loader {
+  display: flex;
+  gap: 6px;
+  height: 40px;
+}
+
+.voice-loader span {
+  width: 6px;
+  height: 100%;
+  background: var(--color-active);
+  border-radius: 4px;
+  animation: voice-wave 1.2s infinite ease-in-out;
+}
+
+.voice-loader span:nth-child(1) { animation-delay: 0s; }
+.voice-loader span:nth-child(2) { animation-delay: 0.1s; }
+.voice-loader span:nth-child(3) { animation-delay: 0.2s; }
+.voice-loader span:nth-child(4) { animation-delay: 0.3s; }
+.voice-loader span:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes voice-wave {
+  0%, 100% {
+    transform: scaleY(0.3);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}

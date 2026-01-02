@@ -8,6 +8,7 @@ import {
   useMutation, 
   useQuery 
 } from "@tanstack/react-query";
+import Loader from "../components/Loader";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -200,7 +201,7 @@ const Settings = () => {
   }
   
   if (profileLoading) {
-    return <div className="p-6">Loading profile...</div>;
+    return <Loader />;
   }
   
   if (profileError) {

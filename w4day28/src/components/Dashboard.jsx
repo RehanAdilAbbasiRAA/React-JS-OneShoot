@@ -1,4 +1,5 @@
 import React from "react";
+import Loader from "../components/Loader";
 import {
   getUserInfo,
   getUserProjects,
@@ -91,10 +92,13 @@ const Dashboard = () => {
     return <div>Please log in to view dashboard</div>;
   }
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
 
+  if (loading) {
+  return <Loader />;
+}
   return (
     <div className="p-6 flex flex-col gap-10 max-w-7xl mx-auto">
       {/* === Top Section: User Info & Stats === */}

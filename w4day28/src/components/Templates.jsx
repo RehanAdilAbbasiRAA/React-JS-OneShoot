@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllTemplates } from "../api/dashboardApi"; //To update data (dispatch login/logout):
 // import { useSelector } from "react-redux"; // Import
 import { useQuery } from "@tanstack/react-query";
+import Loader from "../components/Loader";
 
 // Example template data
 // const initialTemplates = Array.from({ length: 20 }).map((_, i) => ({
@@ -49,7 +50,8 @@ const Templates = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (isLoading) return <div>Loading templates...</div>;
+  // if (isLoading) return <div>Loading templates...</div>;
+  if (isLoading) return <Loader />;
   if (isError) return <div>Error loading templates</div>;
   if (!templatesData.length) return <div>No templates found</div>;
   // Sorting
@@ -113,8 +115,9 @@ const Templates = () => {
           {/* Templates Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {sortedTemplates.map((template) => (
+                
               <div
-                key={template.id}
+                key={template._id}
                 className="bg-[var(--color-card)] rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition duration-300 cursor-pointer overflow-hidden"
               >
                 {/* Top Stats */}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+// import { useState } from 'react'
 import './App.css'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -10,10 +10,10 @@ import About from './components/About'
 import LoginSignup from './components/LoginSignup'
 import { Routes, Route } from "react-router-dom";
 import ProjectForm from './components/ProjectForm'
-import { Toaster, toast } from 'react-hot-toast';// use For Toast to catch errro and Show at the Top
+import { Toaster } from 'react-hot-toast';// use For Toast to catch errro and Show at the Top
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [count, setCount] = useState(0)
 
 
   return (
