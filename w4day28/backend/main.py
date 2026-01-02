@@ -99,7 +99,7 @@ async def refresh_token(data: RefreshRequest):
 async def protected_route(current_user: dict = Depends(get_current_user)):
     return {"message": f"Welcome {current_user['sub']}! You’re authorized."}
 
-@app.get("/user/profile/{user_id}")
+@app.get("/getUser/profile/{user_id}")
 async def get_setting(user_id: str,token: str = Depends(get_current_user)):
     # print(user_id)
     print("User Hit Profile Endpoint✅✅✅")
@@ -116,10 +116,11 @@ async def get_setting(user_id: str,token: str = Depends(get_current_user)):
             }
 
 
-@app.post("/user/profile/{user_id}")
+@app.post("/setUser/profile/{user_id}")
 async def update_user_profile(user_id: str, data: dict = Body(...)):
     user_id = ObjectId(user_id)
     update_data = {}
+    
     if "name" in data:
         update_data["display_name"] = data["name"]
     if "email" in data:
@@ -127,12 +128,23 @@ async def update_user_profile(user_id: str, data: dict = Body(...)):
     if "avatar" in data:
         update_data["avatar_url"] = data["avatar"]
     if "password" in data:
-        # update_data["password_hash"] = hash_password(data["password"])  # hash function
         update_data["password_hash"] = data["password"]
 
     result = await USER_COLLECTION.update_one({"_id": user_id}, {"$set": update_data})
-    print(f" data Updated in DB ✅✅✅ {update_data}")
-    return {"success": result.modified_count == 1}
+    
+    # ✅ FIX: Get the UPDATED user data from database
+    updated_user = await USER_COLLECTION.find_one({"_id": user_id})
+    
+    if updated_user:
+        user_doc = serialize_doc(updated_user)
+        return {
+            "success": result.modified_count == 1,
+            "name": user_doc["display_name"],
+            "email": user_doc["email"],
+            "avatar": user_doc["avatar_url"]
+        }
+    else:
+        return {"success": False, "message": "User not found"}
 
 
 

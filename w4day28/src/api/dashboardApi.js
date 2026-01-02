@@ -4,11 +4,11 @@ import { fetchWithAuth } from "./authApi";
 
 export const getUserProfile = async (userId) => {
   // check_protected=await fetch()
-  return await fetchWithAuth(`/user/profile/${userId}`, "GET");
+  return await fetchWithAuth(`/getUser/profile/${userId}`, "GET");
 };
 export const setUserProfile = async (userId, payload) => {
   try {
-    return await fetchWithAuth(`/user/profile/${userId}`, "POST", payload);
+    return await fetchWithAuth(`/setUser/profile/${userId}`, "POST", payload);
   } catch (error) {
     console.log(error);
     return { message: "Network error" };
