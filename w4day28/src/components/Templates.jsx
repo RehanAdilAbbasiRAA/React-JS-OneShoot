@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getAllTemplates } from "../api/dashboardApi"; //To update data (dispatch login/logout):
-import { useSelector } from "react-redux"; // Impo
+// import { useSelector } from "react-redux"; // Import
+import { useQuery } from "@tanstack/react-query";
 
 // Example template data
 // const initialTemplates = Array.from({ length: 20 }).map((_, i) => ({
@@ -14,19 +15,24 @@ import { useSelector } from "react-redux"; // Impo
 // }));
 
 const Templates = () => {
-  const { isAuthenticated, user, user_data } = useSelector(
-    (state) => state.auth
-  );
+  // const { isAuthenticated, user, user_data } = useSelector(
+  //   (state) => state.auth
+  // );
 
-  const [loading, setLoading] = useState(true);
-  const [templates, setTemplates] = useState([]);
-  const [allTemplates] = useState(templates);
+  const [visibleCount, setVisibleCount] = useState(8); // instead of templates array
   const [filter, setFilter] = useState("views");
 
+  const {
+    data: templatesData = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["allTemplates"],
+    queryFn: () => getAllTemplates(),
+    // enabled: !!user_data?.email,
+  });
   const loadMore = () => {
-    const currentCount = templates.length;
-    const nextBatch = allTemplates.slice(currentCount, currentCount + 4);
-    setTemplates([...templates, ...nextBatch]);
+    setVisibleCount((prev) => prev + 4);
   };
 
   // Infinite scroll
@@ -41,27 +47,23 @@ const Templates = () => {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [templates]);
-
-  // Sorting
-  const sortedTemplates = [...templates].sort((a, b) => b[filter] - a[filter]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (isAuthenticated) {
-        console.log("Fetching templates for user:", user_data);
-        try {
-          const templatesData = await getAllTemplates();
-          // Assuming templatesData is an array of templates
-          setTemplates(templatesData.slice(0, 8));
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching templates:", error);
-        }
-      }
-    };
-    fetchData();
   }, []);
+
+  if (isLoading) return <div>Loading templates...</div>;
+  if (isError) return <div>Error loading templates</div>;
+  if (!templatesData.length) return <div>No templates found</div>;
+  // Sorting
+  // const sortedTemplates = [...templatesData].sort((a, b) => b[filter] - a[filter]).slice(0, visibleCount);;
+  const sortedTemplates = [...templatesData] //Creates a copy of template Data
+    .sort((a, b) => b.stats[filter] - a.stats[filter])
+    .slice(0, visibleCount);
+
+//     | Return value | Meaning              |
+// | ------------ | -------------------- |
+// | `< 0`        | `a` comes AFTER `b`  |
+// | `> 0`        | `a` comes BEFORE `b` |
+// | `0`          | keep order           |
+
 
   return (
     <div className="p-6 flex flex-col gap-6">
@@ -82,7 +84,7 @@ const Templates = () => {
             Views
           </button>
           <button
-            onClick={() => setFilter("clipped")}
+            onClick={() => setFilter("clips")}
             className={`px-3 py-1 rounded-lg border ${
               filter === "clipped"
                 ? "bg-[var(--color-active)] text-[var(--color-primary)]"
@@ -104,7 +106,7 @@ const Templates = () => {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         "No Templates Found"
       ) : (
         <>
@@ -145,7 +147,7 @@ const Templates = () => {
       )}
 
       {/* Load More Button (optional for infinite scroll backup) */}
-      {templates.length < allTemplates.length && (
+      {visibleCount < templatesData.length && (
         <div className="text-center mt-6">
           <button
             onClick={loadMore}
