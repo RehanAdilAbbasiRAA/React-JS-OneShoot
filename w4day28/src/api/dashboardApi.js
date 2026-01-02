@@ -4,14 +4,22 @@ import { fetchWithAuth } from "./authApi";
 
 export const getUserProfile = async (userId) => {
   // check_protected=await fetch()
+  try{
   return await fetchWithAuth(`/getUser/profile/${userId}`, "GET");
+  } catch (error) {
+    console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
+  }
+
 };
 export const setUserProfile = async (userId, payload) => {
   try {
     return await fetchWithAuth(`/setUser/profile/${userId}`, "POST", payload);
   } catch (error) {
-    console.log(error);
-    return { message: "Network error" };
+    console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
   }
 };
 
@@ -19,8 +27,9 @@ export const getUserInfo = async (userId) => {
   try {
     return await fetchWithAuth(`/getuserInfo/${userId}`, "GET");
   } catch (error) {
-    console.log(error);
-    return { message: "Network error" };
+    console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
   }
 };
 
@@ -30,8 +39,9 @@ export const getUserProjects = async (userId) => {
     console.log("API getUserProjects data:", data);
     return data;
   } catch (error) {
-    console.log(error);
-    return { message: "Network error" };
+    console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
   }
 };
 
@@ -41,8 +51,9 @@ export const getUserTemplates = async (userId) => {
     console.log("API getUserProjects data:", data);
     return data;
   } catch (error) {
-    console.log(error);
-    return { message: "Network error" };
+    console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
   }
 };
 
@@ -52,8 +63,9 @@ export const getUserStats = async (userId) => {
     console.log("API getUserProjects data:", data);
     return data;
   } catch (error) {
-    console.log(error);
-    return { message: "Network error" };
+    console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
   }
 };
 
@@ -63,8 +75,9 @@ export const getAllTemplates = async () => {
     console.log("API getAllTemplates data:", data);
     return data;
   } catch (error) {
-    console.log(error);
-    return { message: "Network error" };
+    console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
   }
 };
 
@@ -80,20 +93,41 @@ export const createProject = async (payload, email) => {
     console.log("API createProject data:", data);
     return data;
   } catch (error) {
-    console.log(error);
-    return { message: "Network error" };
+    console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
   }
 };
 
 export const addProject = async(payload) => {
+  try {
   await fetchWithAuth("/user/addProject", "POST", payload);
+  }
+  catch(error){
+        console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+  }
+
+
 };
 
-export const updateProject = async (email,id, payload) =>
+export const updateProject = async (email,id, payload) =>{
+  try {
   await fetchWithAuth(`/user/updateProject/${email}/${id}`, "PUT", payload);
+  }
+  catch(error){
+        console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+  }}
 
-export const deleteUserProject = async(email,project_id) =>
+export const deleteUserProject = async(email,project_id) =>{
+  try {
   await fetchWithAuth(`/user/deleteProject/${project_id}/${email}`, "DELETE");
+  }
+  catch(error){
+        console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+  }}
 
 export const getSingleProject = async(email,id) =>{
   try{
@@ -103,8 +137,9 @@ export const getSingleProject = async(email,id) =>{
     return data.project;
   }
   catch(error){
-    console.log(error);
-    return { message: "Network error" };
+        console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
   }
 
 }
