@@ -1,5 +1,7 @@
 import React from "react";
 import Loader from "../components/Loader";
+import NetworkLoader from "../components/NetworkLoader";
+import SectionError from "../components/SectionError";
 import {
   getUserInfo,
   getUserProjects,
@@ -19,36 +21,58 @@ const Dashboard = () => {
   const queryClient = useQueryClient();
 
   // ✅ Fetch user info with caching
-  const { data: userInfo, isLoading: infoLoading } = useQuery({    //👉 You are subscribing to cached data.
+  const {
+    data: userInfo,
+    isLoading: infoLoading,
+    isError: infoError,
+    error: infoErrorDetails, // Add this to see error object
+  } = useQuery({
+    //👉 You are subscribing to cached data.
     queryKey: ["userInfo", user_data?.email], //👉 This is the cache identity.    // Different user → different cache  >>  Same user → reused cache
-    queryFn: () => getUserInfo(user_data.email),  //👉 Called only when needed, not on every render.
+    queryFn: () => getUserInfo(user_data.email), //👉 Called only when needed, not on every render.
     enabled: !!user_data?.email, // Only run if email exists 👉 Prevents API call until email exists
   });
 
   // ✅ Fetch projects with caching
-  const { data: userProjects = [], isLoading: projectsLoading } = useQuery({
+  const {
+    data: userProjects = [],
+    isLoading: projectsLoading,
+    isError: projectsError,
+    error: projectsErrorDetails,
+  } = useQuery({
     queryKey: ["userProjects", user_data?.email],
     queryFn: () => getUserProjects(user_data.user_id),
     enabled: !!user_data?.email,
   });
 
   // ✅ Fetch templates with caching
-  const { data: userTemplates = [], isLoading: templatesLoading } = useQuery({
+  const {
+    data: userTemplates = [],
+    isLoading: templatesLoading,
+    isError: templatesError,
+    error: templatesErrorDetails,
+  } = useQuery({
     queryKey: ["userTemplates", user_data?.email],
     queryFn: () => getUserTemplates(user_data.email),
     enabled: !!user_data?.email,
   });
 
   // ✅ Fetch stats with caching
-  const { data: userStats, isLoading: statsLoading } = useQuery({
+  const {
+    data: userStats,
+    isLoading: statsLoading,
+    isError: statsError,
+    error: statsErrorDetails,
+  } = useQuery({
     queryKey: ["userStats", user_data?.email],
     queryFn: () => getUserStats(user_data.email),
     enabled: !!user_data?.email,
   });
 
   // ✅ Delete mutation with automatic cache update
-  const deleteMutation = useMutation({  //👉 Mutations are write operations.
-    mutationFn: (project_id) => deleteUserProject(user_data.email, project_id),  //👉 Only job: hit backend
+  const deleteMutation = useMutation({
+    //👉 Mutations are write operations.
+    mutationFn: (project_id) => deleteUserProject(user_data.email, project_id), //👉 Only job: hit backend
     onSuccess: (data, project_id) => {
       // ✅ Update cache without refetching API
       queryClient.setQueryData(["userProjects", user_data?.email], (old) =>
@@ -87,68 +111,96 @@ const Dashboard = () => {
   // ✅ Combined loading check
   const loading =
     infoLoading || projectsLoading || templatesLoading || statsLoading;
+  const error = infoError && projectsError && templatesError && statsError;
 
   if (!user_data) {
     return <div>Please log in to view dashboard</div>;
   }
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
 
   if (loading) {
-  return <Loader />;
-}
+    return <Loader />;
+  }
+  if (error) {
+    return <NetworkLoader />;
+  }
+  // else if(infoError) {
+  //   return <SectionError />;
+  // }
+  console.log("FFFFFFFFFFFFFFFFFF", infoError);
+
   return (
     <div className="p-6 flex flex-col gap-10 max-w-7xl mx-auto">
       {/* === Top Section: User Info & Stats === */}
       <div className="flex flex-col md:flex-row gap-6">
-        <div className="flex-1 bg-[var(--color-card)] rounded-lg p-6 shadow-md hover:shadow-xl transition duration-300">
-          <div className="flex flex-col items-center text-center gap-4">
-            <img
-              src={userInfo.avatar}
-              alt="User"
-              className="w-32 h-32 rounded-full object-cover border-2 border-[var(--color-border)]"
-            />
-            <h2 className="text-2xl font-bold text-[var(--color-text)]">
-              {userInfo.name}
-            </h2>
-            <p className="text-[var(--color-text)]">{userInfo.title}</p>
-            <p className="text-[var(--color-text)] text-sm">{userInfo.intro}</p>
-            <div className="flex gap-4 mt-2">
-              {Object.entries(userInfo.socialLinks).map(([key, link]) => (
-                <a
-                  key={key}
-                  href={link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[var(--color-text)] hover:text-[var(--color-active)] transition"
-                >
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </a>
-              ))}
+        <div className="flex-1 bg-[var(--color-card)] rounded-lg p-6 shadow-md hover:shadow-xl transition duration-300 flex flex-col justify-center gap-4">
+        <h3 className="text-xl font-semibold text-[var(--color-text)]">
+          Your Info
+        </h3>
+          {infoError ? (
+            <SectionError message={infoErrorDetails?.message} />
+          ) : (
+            <div className="flex flex-col items-center text-center gap-4">
+              <img
+                src={userInfo.avatar}
+                alt="User"
+                className="w-32 h-32 rounded-full object-cover border-2 border-[var(--color-border)]"
+              />
+              <h2 className="text-2xl font-bold text-[var(--color-text)]">
+                {userInfo.name}
+              </h2>
+              <p className="text-[var(--color-text)]">{userInfo.title}</p>
+              <p className="text-[var(--color-text)] text-sm">
+                {userInfo.intro}
+              </p>
+              <div className="flex gap-4 mt-2">
+                {userInfo ? (
+                  userInfo.socialLinks &&
+                  Object.keys(userInfo.socialLinks).length > 0 ? (
+                    Object.entries(userInfo.socialLinks).map(([key, link]) => (
+                      <a
+                        key={key}
+                        href={link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[var(--color-text)] hover:text-[var(--color-active)] transition"
+                      >
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </a>
+                    ))
+                  ) : (
+                    <span className="text-gray-500">No social links found</span>
+                  )
+                ) : (
+                  <span className="text-gray-500">No Info Found</span>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="flex-1 bg-[var(--color-card)] rounded-lg p-6 shadow-md hover:shadow-xl transition duration-300 flex flex-col justify-center gap-4">
           <h3 className="text-xl font-semibold text-[var(--color-text)]">
             Stats
           </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-[var(--color-primary)] rounded-lg p-4 shadow hover:shadow-lg transition duration-200 text-center">
-              <p className="text-sm text-[var(--color-text)]">Templates</p>
-              <p className="font-bold text-lg text-[var(--color-text)]">
-                {userStats.templateCount}
-              </p>
+          {statsError ? (
+            <SectionError message={statsErrorDetails?.message} />
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-[var(--color-primary)] rounded-lg p-4 shadow hover:shadow-lg transition duration-200 text-center">
+                <p className="text-sm text-[var(--color-text)]">Templates</p>
+                <p className="font-bold text-lg text-[var(--color-text)]">
+                  {userStats.templateCount}
+                </p>
+              </div>
+              <div className="bg-[var(--color-primary)] rounded-lg p-4 shadow hover:shadow-lg transition duration-200 text-center">
+                <p className="text-sm text-[var(--color-text)]">Views</p>
+                <p className="font-bold text-lg text-[var(--color-text)]">
+                  {userStats.totalViews}
+                </p>
+              </div>
             </div>
-            <div className="bg-[var(--color-primary)] rounded-lg p-4 shadow hover:shadow-lg transition duration-200 text-center">
-              <p className="text-sm text-[var(--color-text)]">Views</p>
-              <p className="font-bold text-lg text-[var(--color-text)]">
-                {userStats.totalViews}
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -157,28 +209,32 @@ const Dashboard = () => {
         <h2 className="text-2xl font-bold text-[var(--color-text)]">
           Your Templates
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {userTemplates.map((template) => (
-            <div
-              key={template.id}
-              className="bg-[var(--color-card)] rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition duration-300 cursor-pointer overflow-hidden"
-            >
-              <img
-                src={template.image}
-                alt={template.name}
-                className="w-full h-40 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-[var(--color-text)]">
-                  {template.name}
-                </h3>
-                <p className="text-sm text-[var(--color-text)]">
-                  {template.views} views
-                </p>
+        {templatesError ? (
+          <SectionError message={templatesErrorDetails?.message} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {userTemplates.map((template) => (
+              <div
+                key={template.id}
+                className="bg-[var(--color-card)] rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition duration-300 cursor-pointer overflow-hidden"
+              >
+                <img
+                  src={template.image}
+                  alt={template.name}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-[var(--color-text)]">
+                    {template.name}
+                  </h3>
+                  <p className="text-sm text-[var(--color-text)]">
+                    {template.views} views
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* === Bottom Section: Projects === */}
@@ -194,92 +250,100 @@ const Dashboard = () => {
             + Add Project
           </button>
         </div>
-        {(userProjects.length === 0) ? (<p>No Projects Found</p>) : ( 
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {userProjects.map((project, idx) => (
-            <div
-              key={project._id}
-              className="bg-[var(--color-card)] rounded-lg shadow-md hover:shadow-xl transition duration-300 p-4"
-            >
-              {/* Actions */}
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  onClick={() =>
-                    navigate(`/project/edit/${project.project_id}`)
-                  }
-                  className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(project.project_id)}
-                  className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
-                  disabled={deleteMutation.isPending}
-                >
-                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
-                </button>
-              </div>
-
-              <h3 className="text-xl font-semibold text-[var(--color-text)]">
-                {project.name}
-              </h3>
-              <p className="text-[var(--color-text)] mt-2">{project.summary}</p>
-
-              {/* Languages */}
-              <div className="flex flex-wrap gap-2 mt-2">
-                {project.languages.map((skill) => (
-                  <span
-                    key={skill}
-                    className="px-2 py-1 bg-[var(--color-primary)] rounded-full text-[var(--color-text)] text-sm"
+        {projectsError ? (
+          <SectionError
+            message={projectsErrorDetails?.message || "Failed to load projects"}
+          />
+        ) : userProjects.length === 0 ? (
+          <p className="text-center text-gray-500 py-8">No Projects Found</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {userProjects.map((project, idx) => (
+              <div
+                key={project._id}
+                className="bg-[var(--color-card)] rounded-lg shadow-md hover:shadow-xl transition duration-300 p-4"
+              >
+                {/* Actions */}
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    onClick={() =>
+                      navigate(`/project/edit/${project.project_id}`)
+                    }
+                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-
-              {/* Technologies */}
-              <div className="flex flex-wrap gap-2 mt-2">
-                {project.technologies.map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 bg-[var(--color-active)] rounded-full text-[var(--color-primary)] text-sm"
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(project.project_id)}
+                    className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    disabled={deleteMutation.isPending}
                   >
-                    {tech}
-                  </span>
-                ))}
-              </div>
+                    {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
 
-              {/* Database */}
-              <div className="flex flex-wrap gap-2 mt-2">
-                {project.databases.map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 bg-[var(--color-active)] rounded-full text-[var(--color-primary)] text-sm"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
+                <h3 className="text-xl font-semibold text-[var(--color-text)]">
+                  {project.name}
+                </h3>
+                <p className="text-[var(--color-text)] mt-2">
+                  {project.summary}
+                </p>
 
-              <p className="text-sm text-[var(--color-text)] mt-2">
-                Duration: {project.duration.from} - {project.duration.to}
-              </p>
+                {/* Languages */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {project.languages.map((skill) => (
+                    <span
+                      key={skill}
+                      className="px-2 py-1 bg-[var(--color-primary)] rounded-full text-[var(--color-text)] text-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
 
-              <div className="flex gap-2 mt-2 overflow-x-auto">
-                {project.images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={`${BACKEND_URL}/${img}`}
-                    alt={`Project ${idx} Image ${i}`}
-                    className="w-24 h-24 object-cover rounded-lg"
-                  />
-                ))}
+                {/* Technologies */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {project.technologies.map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-2 py-1 bg-[var(--color-active)] rounded-full text-[var(--color-primary)] text-sm"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Database */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {project.databases.map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-2 py-1 bg-[var(--color-active)] rounded-full text-[var(--color-primary)] text-sm"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+
+                <p className="text-sm text-[var(--color-text)] mt-2">
+                  Duration: {project.duration.from} - {project.duration.to}
+                </p>
+
+                <div className="flex gap-2 mt-2 overflow-x-auto">
+                  {project.images.map((img, i) => (
+                    <img
+                      key={i}
+                      src={`${BACKEND_URL}/${img}`}
+                      alt={`Project ${idx} Image ${i}`}
+                      className="w-24 h-24 object-cover rounded-lg"
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-                )}
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -339,7 +403,6 @@ export default Dashboard;
 //   { id: 3, name: "Portfolio Three", views: 200, img: "/template3.png" },
 //   { id: 4, name: "Portfolio Four", views: 50, img: "/template4.png" },
 // ];
-
 
 // 6️⃣ Final mental model (remember this)
 // useQuery → Read

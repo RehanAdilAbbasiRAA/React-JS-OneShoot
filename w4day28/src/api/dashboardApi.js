@@ -25,7 +25,8 @@ export const setUserProfile = async (userId, payload) => {
 
 export const getUserInfo = async (userId) => {
   try {
-    return await fetchWithAuth(`/getuserInfo/${userId}`, "GET");
+    const response = await fetchWithAuth(`/getuserInfo/${userId}`, "GET");
+    return response
   } catch (error) {
     console.error("Network error:", error)
     throw error // ✅ THIS IS REQUIRED

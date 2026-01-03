@@ -83,6 +83,7 @@ export const refreshAccessToken = async () => {
 };
 
 // -------------------- API WITH TOKEN --------------------
+// authApi.js or wherever fetchWithAuth is defined
 export const fetchWithAuth = async (endpoint, method = "GET", body = null) => {
   try {
     const token = localStorage.getItem("access_token");
@@ -90,7 +91,6 @@ export const fetchWithAuth = async (endpoint, method = "GET", body = null) => {
       "Content-Type": "application/json",
     };
 
-    // if token available, add it to Authorization header
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -100,7 +100,8 @@ export const fetchWithAuth = async (endpoint, method = "GET", body = null) => {
       headers,
       body: body ? JSON.stringify(body) : null,
     });
-      console.log("main fetchWithAuth Without Refresh:", token);
+
+    console.log("main fetchWithAuth Without Refresh:", token);
 
     // If token expired (401), try to refresh
     if (response.status === 401) {
@@ -108,20 +109,29 @@ export const fetchWithAuth = async (endpoint, method = "GET", body = null) => {
       const refreshed = await refreshAccessToken();
       if (refreshed && refreshed.access_token) {
         // Retry the same request again with the new token
-        const data=await fetchWithAuth(endpoint, method, body);
+        const data = await fetchWithAuth(endpoint, method, body);
         console.log("Retried fetchWithAuth after refresh:", refreshed.access_token);
         return data;
       } else {
         console.warn("Refresh failed. Please log in again.");
-        return { message: "Session expired. Please log in again." };
+        // Throw error instead of returning object
+        throw new Error("Session expired. Please log in again.");
       }
     }
 
     const data = await response.json();
+    
+    // ✅ CRITICAL FIX: Check if response is not OK (404, 500, etc.)
+    if (!response.ok) {
+      // Throw the error so React Query catches it
+      throw new Error(data.message || `Request failed with status ${response.status}`);
+    }
+    
     return data;
   } catch (error) {
     console.error("Error fetching data:", error);
-    return { message: "Network error" };
+    // ✅ Make sure to throw the error, not just log it
+    throw error;
   }
 };
 

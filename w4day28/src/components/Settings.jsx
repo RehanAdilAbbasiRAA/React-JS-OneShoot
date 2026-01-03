@@ -9,6 +9,7 @@ import {
   useQuery 
 } from "@tanstack/react-query";
 import Loader from "../components/Loader";
+import SectionError from "../components/SectionError";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const Settings = () => {
     data: userProfile,      // Data from API (renamed to userProfile)
     isLoading: profileLoading, // Loading state
     isError: profileError,     // Error state
+    error: profileErrorDetails, // Error details
     refetch: refetchProfile   // Function to manually refetch data
   } = useQuery({
     queryKey: ["userDetails", user_data?.user_id], // Cache key (like a dictionary key)
@@ -203,20 +205,6 @@ const Settings = () => {
   if (profileLoading) {
     return <Loader />;
   }
-  
-  if (profileError) {
-    return (
-      <div className="p-6 text-red-500">
-        Error loading profile
-        <button 
-          onClick={() => queryClient.refetchQueries({ queryKey: ["userDetails", user_data?.user_id] })}
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
 
   // 13. RENDER THE FORM
   return (
@@ -227,6 +215,9 @@ const Settings = () => {
           <span className="ml-4 text-sm text-blue-500">(Updating...)</span>
         )}
       </h1>
+        {profileError ? (
+          <SectionError message={profileErrorDetails?.message} />
+        ) : (
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left Side: Profile Picture - STYLING PRESERVED */}
@@ -322,6 +313,7 @@ const Settings = () => {
           </form>
         </div>
       </div>
+              )}
     </div>
   );
 };

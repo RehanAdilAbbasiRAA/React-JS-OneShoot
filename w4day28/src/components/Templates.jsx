@@ -3,6 +3,9 @@ import { getAllTemplates } from "../api/dashboardApi"; //To update data (dispatc
 // import { useSelector } from "react-redux"; // Import
 import { useQuery } from "@tanstack/react-query";
 import Loader from "../components/Loader";
+import SectionError from "../components/SectionError";
+
+
 
 // Example template data
 // const initialTemplates = Array.from({ length: 20 }).map((_, i) => ({
@@ -25,8 +28,9 @@ const Templates = () => {
 
   const {
     data: templatesData = [],
-    isLoading,
-    isError,
+    isLoading:templatesLoading,
+    isError:templatesError,
+    error:templatesErrorDetails,
   } = useQuery({
     queryKey: ["allTemplates"],
     queryFn: () => getAllTemplates(),
@@ -51,8 +55,8 @@ const Templates = () => {
   }, []);
 
   // if (isLoading) return <div>Loading templates...</div>;
-  if (isLoading) return <Loader />;
-  if (isError) return <div>Error loading templates</div>;
+  if (templatesLoading) return <Loader />;
+  if (templatesError) return <SectionError message={templatesErrorDetails?.message} />;
   if (!templatesData.length) return <div>No templates found</div>;
   // Sorting
   // const sortedTemplates = [...templatesData].sort((a, b) => b[filter] - a[filter]).slice(0, visibleCount);;
@@ -108,7 +112,7 @@ const Templates = () => {
         </div>
       </div>
 
-      {isLoading ? (
+      {templatesData.length === 0? (
         "No Templates Found"
       ) : (
         <>
