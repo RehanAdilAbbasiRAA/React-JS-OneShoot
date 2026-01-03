@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from typing import Dict
 from fastapi import Body
-from db import db,USER_COLLECTION,CONTACT_COLLECTION,HITS_COLLECTION,TEMPLATES_COLLECTION
+from db import db,USER_COLLECTION,CONTACT_COLLECTION,HITS_COLLECTION,TEMPLATES_COLLECTION,PROJECTS
 from utils import serialize_doc
 from auth import create_access_token, create_refresh_token, verify_token
 from bson.objectid import ObjectId
@@ -56,8 +56,8 @@ async def login(email: str, password: str):
     user = await USER_COLLECTION.find_one({"email": email, "password_hash": password})
     if not user:
         return {"message": "Invalid credentials"}
-
     user = serialize_doc(user)
+    # print(user)
     access_token = create_access_token({"sub": user["email"]})
     refresh_token = create_refresh_token({"sub": user["email"]})
     print(user)
@@ -235,17 +235,23 @@ async def get_user_info(email: str):
     # print(data,"Data we send")
     return data
 
-@app.get("/getUserProjects/{email}")
-async def get_user_projects(email: str):
-    print("User Hit Get Projects Endpoint✅✅✅")
-    user = await USER_COLLECTION.find_one({"email": email})
+@app.get("/getUserProjects/{user_id}")
+async def get_user_projects(user_id: str):
+    print(f"User Hit Get Projects Endpoint✅✅✅ {user_id}")
+    user = await PROJECTS.find({"user_id": ObjectId(user_id)}).to_list(length=None)
     if not user:
-        return {"message": "User not found"}
-    user_doc= serialize_doc(user)
+        return []
+    listOfProjects=[]
+    for project in user:
+        listOfProjects.append(serialize_doc(project))
+    
+        # raise HTTPException(status_code=404, detail=f"Projects not found for user {user_id}")
+    # user_doc= serialize_doc(user)
+    # print(f"User has these Projects {user_doc}")
     # print(f"User Projects fetched for {email} ✅✅✅ {len(user_doc["projects"])}")
-    data=user_doc["projects"]
-    # print(data,"Data we get")
-    return data
+    # data=user_doc["projects"]
+    # # print(data,"Data we get")
+    return listOfProjects
 
 
 

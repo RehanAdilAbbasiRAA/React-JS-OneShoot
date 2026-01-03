@@ -17,4 +17,5 @@ USER_COLLECTION = db["Users"]
 CONTACT_COLLECTION = db["Contact"]
 HITS_COLLECTION = db["Hits"]
 TEMPLATES_COLLECTION = db["Templates"]
+PROJECTS=db["Projects"]
 

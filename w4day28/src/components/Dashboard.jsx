@@ -28,7 +28,7 @@ const Dashboard = () => {
   // ✅ Fetch projects with caching
   const { data: userProjects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ["userProjects", user_data?.email],
-    queryFn: () => getUserProjects(user_data.email),
+    queryFn: () => getUserProjects(user_data.user_id),
     enabled: !!user_data?.email,
   });
 
@@ -194,11 +194,12 @@ const Dashboard = () => {
             + Add Project
           </button>
         </div>
+        {(userProjects.length === 0) ? (<p>No Projects Found</p>) : ( 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {userProjects.map((project, idx) => (
             <div
-              key={project.project_id}
+              key={project._id}
               className="bg-[var(--color-card)] rounded-lg shadow-md hover:shadow-xl transition duration-300 p-4"
             >
               {/* Actions */}
@@ -278,6 +279,7 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+                )}
       </div>
     </div>
   );
