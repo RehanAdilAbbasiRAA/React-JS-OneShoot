@@ -5,6 +5,7 @@ import fileToBase64 from "../utils/fileToBase64";
 import toast from "react-hot-toast"; // to use toast we import it
 //  Invalidate Cache in ProjectForm
 import { useQueryClient } from "@tanstack/react-query"; // ✅ Import this!
+import Loader from "../components/Loader";
 
 import {
   getSingleProject,
@@ -19,7 +20,7 @@ const ProjectForm = () => {
   const queryClient = useQueryClient(); // ✅ Get queryClient instance
   // ...rest of your component
 
-  const { isAuthenticated, user, user_data } = useSelector(
+  const { isAuthenticated, user_data } = useSelector(
     (state) => state.auth
   );
 
@@ -122,7 +123,7 @@ const ProjectForm = () => {
   async function loadProject() {
     setLoading(true);
 
-    const res = await getSingleProject(user_data.email, id);
+    const res = await getSingleProject(user_data.user_id, id);
     console.log(res);
 
     if (res) {
@@ -222,7 +223,7 @@ const ProjectForm = () => {
       console.log("FINAL PAYLOAD SENT TO BACKEND:", payload);
 
       if (isEdit) {
-        await updateProject(user_data.email, id, payload);
+        await updateProject(user_data.user_id, id, payload);
         toast.success("Project Updated Successfully ✅");
       } else {
         await createProject(payload, user_data.user_id);
@@ -249,6 +250,8 @@ const ProjectForm = () => {
   };
 
   const steps = ["Basic Info", "Tech & Files", "Links & Type"];
+  if (loading) return <div> <Loader/> </div>;
+
 
   return (
     // <div className="electric-border relative rounded-lg overflow-hidden ">

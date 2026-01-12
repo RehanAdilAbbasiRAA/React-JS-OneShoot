@@ -402,33 +402,29 @@ async def add_project(request: Request):
 
     return {"message": "Project added successfully"}
 
-@app.put("/user/updateProject/{email}/{project_id}")
-async def update_project(email: str, project_id: str, request: Request):
+@app.put("/user/updateProject/{user_id}/{project_id}")
+async def update_project(user_id: str, project_id: str, request: Request):
     payload = await request.json()
     existing_images = []
 
     if "images" in payload:
-        user = await USER_COLLECTION.find_one(
-            {"email": email},
-            {"projects": {"$elemMatch": {"project_id": project_id}}}
-        )
+        project = await PROJECTS.find_one(
+            {"user_id": ObjectId(user_id),"_id": ObjectId(project_id)})
 
-        if not user:
+        if not project:
             raise HTTPException(status_code=404, detail="User not found")
 
-        project = user["projects"][0]
         existing_images = project.get("images", [])
-
-        if existing_images:
-            data=await delete_previous_images(existing_images)
-            if data.get("success"):
-                print("Previous images cleared from DB. 👿👿")
-            else:
-                print("No previous images to clear or error occurred. 👿👿")
 
     # Prepare update fields for $set
     update_fields = {}
 
+    if ("startDate" in payload) ^ ("endDate" in payload):
+        raise HTTPException(
+            status_code=400,
+            detail="Both startDate and endDate must be provided together"
+        )
+    
     for key, value in payload.items():
         if key == "startDate" or key == "endDate":
             start_date = payload.get("startDate")
@@ -441,7 +437,7 @@ async def update_project(email: str, project_id: str, request: Request):
                 if start_dt > end_dt:
                     raise HTTPException(status_code=400, detail="Start date cannot be after end date")
 
-                update_fields["projects.$.duration"] = {
+                update_fields["duration"] = {
                     "from": start_date,
                     "to": end_date
                 }
@@ -451,7 +447,7 @@ async def update_project(email: str, project_id: str, request: Request):
         if key == "languages":
             if isinstance(value, str):
                 value = [x.strip() for x in value.split(",") if x.strip()]
-            update_fields["projects.$.languages"] = value
+            update_fields["languages"] = value
             continue
         # images = payload.get("images", [])
         # print("IMAGES TYPE:", type(images))
@@ -467,18 +463,18 @@ async def update_project(email: str, project_id: str, request: Request):
                     saved_files.append(save_image_from_base64(img))
                 except Exception as e:
                     print("Failed to save image:", e)
-            update_fields["projects.$.images"] = saved_files
+            update_fields["images"] = saved_files
             continue
 
 
         # normal fields go directly inside the project
-        update_fields[f"projects.$.{key}"] = value
+        update_fields[f"{key}"] = value
 
     # Execute update using positional operator
-    result = await USER_COLLECTION.update_one(
+    result = await PROJECTS.update_one(
         {
-            "email": email,
-            "projects.project_id": project_id
+            "user_id": ObjectId(user_id),
+            "_id": ObjectId(project_id)
         },
         {
             "$set": update_fields
@@ -487,6 +483,13 @@ async def update_project(email: str, project_id: str, request: Request):
 
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Project not found or wrong project ID")
+
+    if existing_images:
+        data=await delete_previous_images(existing_images)
+        if data.get("success"):
+            print("Previous images cleared from DB. 👿👿")
+        else:
+            print("No previous images to clear or error occurred. 👿👿")
 
     return {"message": "Project updated successfully"}
 
@@ -537,24 +540,13 @@ async def delete_user_project(project_id: str, user_id: str):
         "message": "Project deleted successfully"
     }
 
-@app.get("/user/project/{email}/{project_id}")
-async def get_user_project(email: str, project_id: str):
-    print("PROJECT    ?????",email, project_id)
-    user = await USER_COLLECTION.find_one(
-        {"email": email, "projects.project_id": project_id})
-    
-    if not user or "projects" not in user:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    user = serialize_doc(user)
-    print("USER DATA:", user)
-    projects= user.get("projects", [])
-    project = next(
-        (p for p in projects if p.get("project_id") == project_id),
-        None
-    )
+@app.get("/user/project/{user_id}/{project_id}")
+async def get_user_project(user_id: str, project_id: str):
+    print("PROJECT    ?????",user_id, project_id)
+    project= await PROJECTS.find_one({"user_id": ObjectId(user_id), "_id": ObjectId(project_id)})
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    project=serialize_doc(project)
 
     return {
         "success": True,
