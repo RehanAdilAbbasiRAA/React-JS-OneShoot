@@ -506,44 +506,36 @@ def save_image_from_base64(base64_str: str) -> str:
     return str(file_path)
 
 
-@app.delete("/user/deleteProject/{project_id}/{email}")
-async def delete_user_project(email: str, project_id: str):
-    # print(email, project_id)
-    print("User Hit Delete Project Endpoint✅✅✅")
-    # first find the user and then project using want to delete but also delete the images from uploads folder
-    user = await USER_COLLECTION.find_one(
-        {"email": email},
-        {"projects": {"$elemMatch": {"project_id": project_id}}}
-    )
+@app.delete("/user/deleteProject/{project_id}/{user_id}")
+async def delete_user_project(project_id: str, user_id: str):
+    print(f"User Hit Delete Project Endpoint ✅ {project_id} {user_id}")
 
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    projects = user.get("projects", [])
-
-    project = next(
-        (p for p in projects if p.get("project_id") == project_id),
-        None
-    )
+    # 1️⃣ Find the project (single document)
+    project = await PROJECTS.find_one({
+        "_id": ObjectId(project_id),
+        "user_id": ObjectId(user_id)
+    })
 
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found for this user"
+        )
 
-    # Get images to delete from uploads folder
+    # 2️⃣ Delete images from local storage
     images = project.get("images", [])
-    print("Images stored in DB:", images)
     await delete_previous_images(images)
 
-    # Now remove project from user's projects array
-    result = await USER_COLLECTION.update_one(
-        {"email": email},
-        {"$pull": {"projects": {"project_id": project_id}}}
-    )
+    # 3️⃣ Delete project document
+    await PROJECTS.delete_one({
+        "_id": ObjectId(project_id),
+        "user_id": ObjectId(user_id)
+    })
 
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {"sucess":True,"message": "Project deleted successfully"}
+    return {
+        "success": True,
+        "message": "Project deleted successfully"
+    }
 
 @app.get("/user/project/{email}/{project_id}")
 async def get_user_project(email: str, project_id: str):

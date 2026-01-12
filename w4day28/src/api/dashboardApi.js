@@ -121,9 +121,10 @@ export const updateProject = async (email,id, payload) =>{
     throw error // ✅ THIS IS REQUIRED
   }}
 
-export const deleteUserProject = async(email,project_id) =>{
+export const deleteUserProject = async(user_id,project_id) =>{
+  console.log("API deleteUserProject called with:", user_id, project_id);
   try {
-  await fetchWithAuth(`/user/deleteProject/${project_id}/${email}`, "DELETE");
+  await fetchWithAuth(`/user/deleteProject/${project_id}/${user_id}`, "DELETE");
   }
   catch(error){
         console.error("Network error:", error)

@@ -19,6 +19,8 @@ const Dashboard = () => {
   const { user_data } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  console.log(user_data);
+
 
   // ✅ Fetch user info with caching
   const {
@@ -72,11 +74,11 @@ const Dashboard = () => {
   // ✅ Delete mutation with automatic cache update
   const deleteMutation = useMutation({
     //👉 Mutations are write operations.
-    mutationFn: (project_id) => deleteUserProject(user_data.email, project_id), //👉 Only job: hit backend
+    mutationFn: (project_id) => deleteUserProject(user_data.user_id, project_id), //👉 Only job: hit backend
     onSuccess: (data, project_id) => {
       // ✅ Update cache without refetching API
       queryClient.setQueryData(["userProjects", user_data?.email], (old) =>
-        old.filter((p) => p.project_id !== project_id)
+        old.filter((p) => p._id !== project_id)
       );
       // ✅ Also invalidate stats to refetch updated count
       queryClient.invalidateQueries(["userStats", user_data?.email]);
@@ -268,14 +270,14 @@ const Dashboard = () => {
                 <div className="flex justify-end gap-3 mt-4">
                   <button
                     onClick={() =>
-                      navigate(`/project/edit/${project.project_id}`)
+                      navigate(`/project/edit/${project._id}`)
                     }
                     className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(project.project_id)}
+                    onClick={() => handleDelete(project._id)}
                     className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
                     disabled={deleteMutation.isPending}
                   >

@@ -101,7 +101,7 @@ export const fetchWithAuth = async (endpoint, method = "GET", body = null) => {
       body: body ? JSON.stringify(body) : null,
     });
 
-    console.log("main fetchWithAuth Without Refresh:", token);
+    console.log("🍂🍂🍂 BACKEND fetchWithAuth Without Refresh:", token);
 
     // If token expired (401), try to refresh
     if (response.status === 401) {
