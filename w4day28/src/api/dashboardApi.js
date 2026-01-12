@@ -82,10 +82,10 @@ export const getAllTemplates = async () => {
   }
 };
 
-export const createProject = async (payload, email) => {
+export const createProject = async (payload, user_id) => {
   try {
     // Merge email into the project payload
-    const body = { ...payload, email };
+    const body = { ...payload, user_id };
 
     console.log("API createProject payload:", body);
 

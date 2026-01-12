@@ -326,21 +326,21 @@ async def get_all_templates():
 async def add_project(request: Request):
     data = await request.json()
     
-    email = data.get("email")
-    if not email:
-        raise HTTPException(status_code=400, detail="Email is required")
+    user_id = data.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User ID is required")
     
     # Find user
-    user = await USER_COLLECTION.find_one({"email": email})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    user = serialize_doc(user)
+    # user = await USER_COLLECTION.find_one({"email": email})
+    # if not user:
+    #     raise HTTPException(status_code=404, detail="User not found")
+    # user = serialize_doc(user)
     
     # Process and validate data
     project = {}
 
     # Required fields
-    project["project_id"] = str(uuid.uuid4())
+    project["user_id"] = ObjectId(user_id)
     # project["project_id"] = ObjectId()  # generate unique id
     project["name"] = data.get("name", "")
     project["summary"] = data.get("summary", "")
@@ -390,15 +390,15 @@ async def add_project(request: Request):
     project["liveURL"] = data.get("liveURL", "")
     project["linkedIn"] = data.get("linkedIn", "")
     project["type"] = data.get("type", "")
+    project["createdAt"] = datetime.now().isoformat()
+    project["updatedAt"] = datetime.now().isoformat()
+
 
     # Append to user's projects
-    updated_projects = user.get("projects", [])
-    updated_projects.append(project)
+    # updated_projects = user.get("projects", [])
+    # updated_projects.append(project)
 
-    await USER_COLLECTION.update_one(
-        {"email": email},
-        {"$set": {"projects": updated_projects}}
-    )
+    await PROJECTS.insert_one(project)
 
     return {"message": "Project added successfully"}
 
