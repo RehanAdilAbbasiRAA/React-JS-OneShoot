@@ -160,3 +160,23 @@ export const addContactUs = async(user_id,email,name,message,subject) =>{
   }
 
 }
+// TO THIS:
+export const updatePublicInfo = async(user_id, public_info) =>{
+  try{
+    console.log("API updatePublicInfo called with:", user_id, public_info);
+    
+    // Pass public_info as the third parameter (request body)
+    const data = await fetchWithAuth(
+      `/updateUser/publicInfo/${user_id}`,  // URL without public_info
+      "PUT",                                // Method
+      public_info                           // This is the request body
+    );
+    
+    console.log("API updatePublicInfo response:", data);
+    return data;
+  }
+  catch(error){
+    console.error("Network error:", error);
+    throw error;
+  }
+}

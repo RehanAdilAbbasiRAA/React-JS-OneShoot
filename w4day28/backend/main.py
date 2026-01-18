@@ -109,12 +109,87 @@ async def get_setting(user_id: str,token: str = Depends(get_current_user)):
         print("User not found")
         return {"message": "User not found"}
     user_doc= serialize_doc(user)
+    # Convert social_links object → array
+    social_links_obj = user_doc.get("social_links", {})
+
+    social_links_array = [
+        {
+            "platform": key,
+            "url": value
+        }
+        for key, value in social_links_obj.items()
+        if value  # ignore empty/null links
+    ]
+    print(social_links_array)
     # print(user_doc,"Data we get")
     return {"name":user_doc["display_name"],"email":user_doc["email"],
             # "password":user_doc["password_hash"]
-            "avatar":user_doc["avatar_url"]
+            "avatar":user_doc["avatar_url"],
+            "title":user_doc["title"],
+            "bio":user_doc["bio"],
+            "socialLinks": social_links_array
             }
 
+
+
+@app.put("/updateUser/publicInfo/{user_id}")
+async def update_public_info(
+    user_id: str,
+    public_info: dict,  # This will come from request body, not URL
+    token: str = Depends(get_current_user)
+):
+    print("User Hit Public Info Update Endpoint✅✅✅")
+    print("Received data:", public_info)  # Add this for debugging
+    
+    user_id = ObjectId(user_id)
+    
+    # Prepare the update data
+    update_data = {}
+    
+    if "title" in public_info:
+        update_data["title"] = public_info["title"]
+    
+    if "bio" in public_info:
+        update_data["bio"] = public_info["bio"]
+    
+    # Convert socialsLinks array back to object
+    if "socialsLinks" in public_info and isinstance(public_info["socialsLinks"], list):
+        social_links_dict = {}
+        for item in public_info["socialsLinks"]:
+            if isinstance(item, dict) and "platform" in item and "url" in item:
+                social_links_dict[item["platform"]] = item["url"]
+        update_data["social_links"] = social_links_dict
+    
+    # If nothing to update
+    if not update_data:
+        return {"message": "No data to update"}
+    
+    # Update in database
+    result = await USER_COLLECTION.update_one(
+        {"_id": user_id},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        return {"message": "No changes made"}
+    
+    # Fetch updated user
+    updated_user = await USER_COLLECTION.find_one({"_id": user_id})
+    updated_user_doc = serialize_doc(updated_user)
+    
+    # Prepare social links array for response
+    social_links_obj = updated_user_doc.get("social_links", {})
+    social_links_array = [
+        {"platform": key, "url": value}
+        for key, value in social_links_obj.items()
+        if value
+    ]
+    
+    return {
+        "title": updated_user_doc.get("title", ""),
+        "bio": updated_user_doc.get("bio", ""),
+        "socialLinks": social_links_array
+    }
 
 @app.post("/setUser/profile/{user_id}")
 async def update_user_profile(user_id: str, data: dict = Body(...)):
