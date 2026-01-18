@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { addContactUs } from "../api/dashboardApi";
+import { useSelector } from "react-redux"; // Impo
+import toast from "react-hot-toast";
 
 const Contact = () => {
   const [form, setForm] = useState({
@@ -7,6 +10,7 @@ const Contact = () => {
     subject: "",
     message: "",
   });
+  const { user_data } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -15,23 +19,51 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Contact Form Submitted:", form);
-    alert("Message sent successfully!");
+    // console.log("Contact Form Submitted:", form);
+    // alert("Message sent successfully!");
+    submitForm(form)
+
     setForm({ name: "", email: "", subject: "", message: "" });
   };
+const submitForm=async(form)=>{
+  let  email= ""
+  let name=""
+  if (form.email === ""){
+    email=user_data.email
+  }
+  else{
+    email=form.email
+  }
+  if (form.name === ""){
+    name=user_data.name
+  }
+  else{
+    name=form.name
+  }
+  console.log(email,name);
+  const data=await addContactUs(user_data.user_id,email,name,form.message,form.subject)
+  if (data.success){
+    toast.success(" Message sent successfully!");
+  }
+  else{
+    toast.error(" Message not sent!");
+  }
+  // console.log(data);
+}
 
   return (
     <div className="p-6 flex flex-col gap-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold text-[var(--color-text)] text-center mb-6">
-        Contact Me
+        Contact Us
       </h1>
       <p className="text-[var(--color-text)] text-center mb-6">
         Have questions or want to work together? Fill out the form below and I’ll get back to you as soon as possible.
+        Feilds that are required are marked with <b>*(asterisk sign)</b> 
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-4 bg-[var(--color-card)] p-6 rounded-xl shadow-md hover:shadow-xl transition duration-300"
+        className="flex flex-col gap-9 bg-[var(--color-card)] p-6 rounded-xl shadow-md hover:shadow-xl transition duration-300 pt-10"
       >
         {/* Name */}
         <div className="relative">
@@ -40,12 +72,12 @@ const Contact = () => {
             name="name"
             value={form.name}
             onChange={handleChange}
-            required
+            // required
             className="peer w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-primary)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-active)] transition"
             // placeholder="Your Name"
           />
           <label
-            className="absolute left-3 top-3 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
+            className="absolute left-3 bottom-13 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
           >
             Name
           </label>
@@ -58,12 +90,12 @@ const Contact = () => {
             name="email"
             value={form.email}
             onChange={handleChange}
-            required
+            // required
             className="peer w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-primary)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-active)] transition"
             // placeholder="Your Email"
           />
           <label
-            className="absolute left-3 top-3 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
+            className="absolute left-3 bottom-13 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
           >
             Email
           </label>
@@ -81,9 +113,10 @@ const Contact = () => {
             // placeholder="Subject"
           />
           <label
-            className="absolute left-3 top-3 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
+            className="absolute left-3 bottom-13 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
           >
             Subject
+            <span className="text-red-500 text-base font-bold">  *</span>
           </label>
         </div>
 
@@ -99,9 +132,10 @@ const Contact = () => {
             // placeholder="Your Message"
           />
           <label
-            className="absolute left-3 top-3 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
+            className="absolute left-3 bottom-39 text-[var(--color-text)] text-sm pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--color-active)] transition-all"
           >
             Message
+            <span className="text-red-500 text-base font-bold">  *</span>
           </label>
         </div>
 

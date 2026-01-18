@@ -586,3 +586,10 @@ async def delete_previous_images(images: list):
             print("Failed to delete image:", img, e)
 
     return {"success":True,"message": "Images cleared successfully"}
+
+
+@app.post("/contact/{user_id}/{email}/{name}/{message}/{subject}")
+async def contact_us(user_id: str, email: str,name: str, message: str,subject: str):
+    print(f"user_id: {user_id}, email: {email},name: {name}, message: {message}, subject: {subject}")
+    data=await CONTACT_COLLECTION.insert_one({"user_id":ObjectId(user_id),"email":email,"name":name,"message":message,"subject":subject,"createdAt":datetime.now(),"isRead":False})
+    return {"success": True, "message": "Message sent successfully"}

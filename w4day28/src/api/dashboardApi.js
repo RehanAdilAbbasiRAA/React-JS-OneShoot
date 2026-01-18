@@ -145,3 +145,18 @@ export const getSingleProject = async(user_id,id) =>{
   }
 
 }
+
+export const addContactUs = async(user_id,email,name,message,subject) =>{
+  try{
+    console.log("API addContactUs called with:", user_id);
+    const data=await fetchWithAuth(`/contact/${user_id}/${email}/${name}/${message}/${subject}`, "POST");
+    console.log("API getSingleProject data:", data);
+    return data;
+  }
+  catch(error){
+        console.error("Network error:", error)
+    throw error // ✅ THIS IS REQUIRED
+    // return { message: "Network error" };
+  }
+
+}
