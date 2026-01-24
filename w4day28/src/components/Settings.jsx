@@ -160,19 +160,30 @@ const Settings = () => {
   });
 
 // Your existing mutation - make sure it's properly defined
+// Update your updatePublicInfoMutation to update ALL fields in cache
 const updatePublicInfoMutation = useMutation({
   mutationFn: (payload) => updatePublicInfo(user_data.user_id, payload),
 
   onSuccess: (updatedData) => {
     toast.success("✅ Public info updated successfully!");
+    console.log("Public info updated successfully:", updatedData);
     
-    // Update cache with new data
+    // Update cache with ALL new data, not just partial
     queryClient.setQueryData(["userDetails", user_data.user_id], (oldData) => ({
       ...oldData,
-      title: updatedData.title,
-      bio: updatedData.bio,
-      socialLinks: updatedData.socialLinks,
+      title: updatedData.title || oldData?.title || "",
+      bio: updatedData.bio || oldData?.bio || "",
+      socialLinks: updatedData.socialLinks || oldData?.socialLinks || [],
+      workExperiences: updatedData.workExperiences || oldData?.workExperiences || [],
+      education: updatedData.education || oldData?.education || [],
+      certifications: updatedData.certifications || oldData?.certifications || [],
+      skills: updatedData.skills || oldData?.skills || { technical: [], soft: [] }
     }));
+
+    // Also force a refetch to ensure we have the latest data
+    setTimeout(() => {
+      refetchProfile();
+    }, 100);
   },
 
   onError: (error) => {
@@ -347,7 +358,11 @@ const updatePublicInfoMutation = useMutation({
   data={{
     title: userProfile?.title || "",
     bio: userProfile?.bio || "",
-    socialsLinks: userProfile?.socialLinks || [], // Use socialLinks from API response
+    socialsLinks: userProfile?.socialLinks || [],
+    workExperiences: userProfile?.workExperiences || [],
+    education: userProfile?.education || [],
+    certifications: userProfile?.certifications || [],
+    skills: userProfile?.skills || { technical: [], soft: [] }
   }}
   loading={updatePublicInfoMutation.isLoading}
   onSubmit={(payload) => updatePublicInfoMutation.mutate(payload)}
